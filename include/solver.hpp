@@ -11,8 +11,8 @@
 
 #include <iostream>
 
-#include "Circle.h"
-#include "grid.h"
+#include "circle.hpp"
+#include "grid.hpp"
 
 using namespace std;
 using namespace ant;
@@ -42,6 +42,16 @@ struct Solver {
 };
 
 struct Greedy : Solver {
+private:
+
+    vector<shared_ptr<Field::Circle>> circles_;
+    Field field_; 
+    // maybe this parameter will be changed
+    constexpr static const double kCompactedness = 0.01;
+    constexpr static const double kGoldenAngle = 2*M_PI*0.381966;
+
+public:
+
     void minimumWork(vector<Circle>& cs) override {
         vector<shared_ptr<Field::Circle>> sh_cs(cs.size());
         for (auto i = 0; i < cs.size(); ++i) {
@@ -59,13 +69,14 @@ struct Greedy : Solver {
         
         fillNaive(sh_cs);
         closeToOrigin(sh_cs);         
-        //closeToPoint(sh_cs, Point(0.5, 0.5));
         for (auto i = 0; i < cs.size(); ++i) {
             cs[i].center = sh_cs[i]->center();
         }
         field_.clear();
     }
     
+private:
+
     void fillNaive(const vector<shared_ptr<Field::Circle>>& sh_cs) {
         vector<shared_ptr<Field::Circle>> cs(sh_cs);
         sort(cs.begin(), cs.end(), [] (
@@ -131,7 +142,8 @@ struct Greedy : Solver {
         
     }
     
-    // circles should be already ordered
+    // cs : ordered circles
+    // 
     void dispose(const vector<shared_ptr<Field::Circle>>& cs) {
         vector<shared_ptr<Field::Circle>> inters;
         
@@ -157,7 +169,7 @@ struct Greedy : Solver {
                 angle = index * kGoldenAngle;
                 c->set_center(Point(distance*cos(angle) + c->center().x, 
                                     distance*sin(angle) + c->center().y));
-                                    
+                // this arent ready.                    
                 if (c->origin.x )
                             
                 ++index;
@@ -165,13 +177,61 @@ struct Greedy : Solver {
             field_.add(c);
         }
     } 
-    
-    vector<shared_ptr<Field::Circle>> circles_;
-    Field field_; 
-    // maybe this parameter will be changed
-    constexpr static const double kCompactedness = 0.01;
-    constexpr static const double kGoldenAngle = 2*M_PI*0.381966;
 };
+
+using namespace ant::geometry::d2::f;
+
+struct PenaltyMethod : Solver {
+    
+    vector<::Circle> *cs_;
+    default_random_engine rng_;
+    
+    void minimumWork(vector<::Circle>& cs) override {
+        cs_ = &cs;
+        vector<Index> inds(cs.size());
+        iota(inds.begin(), inds.end(), 0);
+
+        double penalty = 1;
+        auto norm = [](const Indent& p) {
+            return p / p.distance();
+        };
+        bool overlap = true;
+        while (overlap) {
+            overlap = false;
+            for (Index i : inds) {
+                auto overlap_inds = overlaps(i);
+                if (overlap_inds.empty()) continue;
+                overlap = true;
+                Indent pressure_sum;
+                double pressure_mass = 0;
+                for (Index q : overlap_inds) {
+                    pressure_sum += norm(cs[i].center - cs[q].center) * (cs[i].center.distance(cs[q].center) - cs[i].radius - cs[q].radius);
+                    pressure_mass += cs[q].mass;
+                } 
+                Indent gravity = cs[i].mass * (cs[i].origin - cs[i].center);
+                Indent shift = (gravity + penalty * pressure_sum) / ( (cs[i].mass + pressure_mass));
+                cs[i].center += shift;
+            }
+            penalty *= 1.00001;
+            shuffle(inds.begin(), inds.end(), rng_);
+        } 
+    }
+    
+    vector<Index> overlaps(Index k) {
+        vector<Index> res;
+        auto& cs = *cs_; 
+        for (int i = 0; i < cs.size(); ++i) {
+            if (i == k) continue;
+            if (!cs[k].isOverlap(cs[i])) continue;
+            res.push_back(i);
+        }
+        return res;
+    }
+};
+
+
+
+
 
 
 

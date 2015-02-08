@@ -10,18 +10,19 @@
 #define __CirclesSeparation__grid__
 
 #include <iostream>
-#include <ant>
+#include "ant/geometry/d2.h"
+#include "ant/grid.h"
 
-#include "Circle.h"
+#include "circle.hpp"
 
 using namespace std;
 using namespace ant;
-using namespace ant::d2;
+using namespace ant::geometry::d2;
 
-using ant::d2::f::Point;
+using ant::geometry::d2::f::Point;
 
 
-struct Field : ParticleGrid {
+struct Field : ant::grid::ParticleGrid {
     struct Circle : ParticleGrid::Particle, ::Circle {
         bool intersects(const Particle& p) const override {
             const auto& c = static_cast<const Circle&>(p);
@@ -46,7 +47,7 @@ struct Field : ParticleGrid {
           double max_x, double max_y,
           double max_particle_width, 
           double max_particle_height) 
-          : ant::d2::ParticleGrid(
+          : ant::grid::ParticleGrid(
                 min_x, min_y, 
                 max_x, max_y,
                 max_particle_width, 
@@ -54,7 +55,7 @@ struct Field : ParticleGrid {
     Field() {}
     
     vector<shared_ptr<Circle>> intersections(const shared_ptr<Circle>& p) {
-        auto ins = ant::d2::ParticleGrid::intersections(p);
+        auto ins = ant::grid::ParticleGrid::intersections(p);
         vector<shared_ptr<Circle>> res(ins.size());
         for (auto i = 0; i < ins.size(); ++i) {
             res[i] = static_pointer_cast<Circle>(ins[i]);

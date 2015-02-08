@@ -12,29 +12,30 @@
 #include <iostream>
 #include <cmath>
 
-#include <ant>
+#include "ant/core.h"
+#include "ant/geometry/d2.h"
 
 using namespace std;
 using namespace ant;
-using ant::d2::f::Point;
+using ant::geometry::d2::f::Point;
 
-struct Circle : d2::f::Circle {
-  double mass;
-  // origin and center
-  Point origin;
-  Circle(){}
-  Circle(double x, double y, double radius, double mass)
-  : d2::f::Circle(Point(x, y), radius), mass(mass), origin(x, y)  {}
-  
-  bool isOverlap(const Circle& c) const {
+struct Circle : ant::geometry::d2::f::Circle {
+    double mass;
+    // origin and center
+    Point origin;
+    Circle(){}
+    Circle(double x, double y, double radius, double mass)
+    : ant::geometry::d2::f::Circle(Point(x, y), radius), mass(mass), origin(x, y)  {}
+
+    bool isOverlap(const Circle& c) const {
       return radius+c.radius - center.distance(c.center) > 0;
-  }
-  double area() const {
+    }
+    double area() const {
       return radius*radius*M_PI;
-  }
-  double density() const {
+    }
+    double density() const {
       return mass/area();
-  }
+    }
 };
 
 #endif /* defined(__CirclesSeparation__Circle__) */

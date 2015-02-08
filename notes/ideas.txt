@@ -1,0 +1,17 @@
+
+so basically we need:
+- target that gets inside circles:
+    origin, radius, mass
+  and returns for each one
+    center - position after movements
+
+we need probably to have input.txt and output.txt that should be passed to program
+std streams aren't that reliable
+
+- test target, after running this one we can know that everything is fine. 
+    also we could run some tests with this one
+    
+    
+circle_separation - main library
+circle_separation_test - executable for testing purposes
+circle_separation_app - executable for running purposes 
