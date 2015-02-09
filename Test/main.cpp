@@ -14,59 +14,45 @@
 #include <functional>
 
 #include "separation.hpp"
+#include "naive_v1.hpp"
 
 vector<::Circle> test(int n, double min_radius, double max_radius) {
     vector<::Circle> cs(n);
     default_random_engine rng;
-    uniform_real_distribution<> mass_distr(0, 1);
+    uniform_real_distribution<> distr(0, 1);
     uniform_real_distribution<> radius_distr(min_radius, max_radius);
     for (auto& c : cs) {
-        c.mass = mass_distr(rng);
-        c.center.set(mass_distr(rng), mass_distr(rng));
-        c.origin.set(0, 0);
+        c.mass = distr(rng);
+        c.center.set(distr(rng), distr(rng));
+        c.origin = c.center;
         c.radius = radius_distr(rng);
     }
     return cs;
 }
 
 
-
-
-using namespace std;
 int main(int argc, const char * argv[])
 {
-    ofstream output("output.txt");
-    auto cs = test(20, 3, 5);
-    PenaltyMethod pm;
-    pm.minimumWork(cs);
-    for (const auto& c : cs) {
-        output << c.center.x << " " << c.center.y << endl;
+    Naive_v1 naive;
+    default_random_engine rng;
+    uniform_int_distribution<> distr(0, 450);
+    int cs_count = distr(rng) + 50;
+    uniform_real_distribution<> radius_distr(sqrt(1./cs_count), sqrt(5./cs_count));
+    double max_radius = radius_distr(rng);
+    auto cs = test(cs_count, 0, max_radius);
+    naive.Separate(cs);
+    naive.CloseUp(cs);
+    
+    ofstream output("solution.txt");
+    // origin x, y; center x, y; radius r; mass m; 
+    for (auto& c : cs) {
+        output  << c.origin.x << " " 
+                << c.origin.y << " " 
+                << c.center.x << " " 
+                << c.center.y << " " 
+                << c.radius << " "
+                << c.mass << endl;
     }
-    output.flush();
-    output.close();
     return 0;
-
-//    int N;
-//    cin >> N;
-//    vector<double> X(N), Y(N), R(N), M(N);
-//    for (int i = 0; i < N; i++) {
-//    cin >> X[i];
-//    }
-//    for (int i = 0; i < N; i++) {
-//    cin >> Y[i];
-//    }
-//    for (int i = 0; i < N; i++) {
-//    cin >> R[i];
-//    }
-//    for (int i = 0; i < N; i++) {
-//    cin >> M[i];
-//    }
-//
-//    CirclesSeparation cs;
-//    vector<double> v = cs.minimumWork(X, Y, R, M);
-//    for (int i = 0; i < 2*N; i++) {
-//        printf("%.11f\n", v[i]);
-//    }
-//    return 0;
 }
 

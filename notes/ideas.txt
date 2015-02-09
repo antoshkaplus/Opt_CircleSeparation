@@ -15,3 +15,8 @@ std streams aren't that reliable
 circle_separation - main library
 circle_separation_test - executable for testing purposes
 circle_separation_app - executable for running purposes 
+
+
+
+circle
+usage of ParticleGrid ? is needed

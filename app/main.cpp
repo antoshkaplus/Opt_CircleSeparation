@@ -15,6 +15,8 @@
 
 #include "separation.hpp"
 
+#include "naive_v1.hpp"
+
 vector<::Circle> test(int n, double min_radius, double max_radius) {
     vector<::Circle> cs(n);
     default_random_engine rng;

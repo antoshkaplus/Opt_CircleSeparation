@@ -23,38 +23,46 @@ using ant::geometry::d2::f::Point;
 
 
 struct Field : ant::grid::ParticleGrid {
-    struct Circle : ParticleGrid::Particle, ::Circle {
+
+    struct Circle : ParticleGrid::Particle {
+    private:
+        shared_ptr<::Circle> circle_;
+        
+    public:
+        Circle() {}
+        Circle(shared_ptr<::Circle> circle) : circle_(circle) {}
+        
+        
+        // needed for particle interface to keep track of intersections
         bool intersects(const Particle& p) const override {
             const auto& c = static_cast<const Circle&>(p);
-            return center().distance(c.center()) < radius + c.radius;
+            return center().distance(c.center()) < circle_->radius + c.circle_->radius;
         }
         
-        // how much should increase distance between circles
-        double intersectionDistance(const Circle& c) const {
-            return radius + c.radius - center().distance(c.center());
-        }
-        // maybe to use position (but it can be confused with Position and left top angle)
+        // needed for particle interface to assign cell 
         Point center() const override {
-            return f::Circle::center;
-        }
-        void set_center(const Point& p) {
-            f::Circle::center = p;
+            return circle_->center;
         }
         
+        void set_circle(shared_ptr<::Circle> c) {
+            circle_ = c;
+        }
+        
+        shared_ptr<::Circle> circle() {
+            return circle_;
+        }
     };
     
-    Field(double min_x, double min_y, 
-          double max_x, double max_y,
-          double max_particle_width, 
-          double max_particle_height) 
+    Field(Point min, Point max,
+          f::Size max_particle_size) 
           : ant::grid::ParticleGrid(
-                min_x, min_y, 
-                max_x, max_y,
-                max_particle_width, 
-                max_particle_height) {}
+                min.x, min.y, 
+                max.x, max.y,
+                max_particle_size.width, 
+                max_particle_size.height) {}
     Field() {}
     
-    vector<shared_ptr<Circle>> intersections(const shared_ptr<Circle>& p) {
+    vector<shared_ptr<Circle>> intersections(const shared_ptr<Circle>& p) const {
         auto ins = ant::grid::ParticleGrid::intersections(p);
         vector<shared_ptr<Circle>> res(ins.size());
         for (auto i = 0; i < ins.size(); ++i) {
