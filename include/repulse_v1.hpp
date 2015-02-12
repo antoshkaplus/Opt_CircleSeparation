@@ -9,23 +9,19 @@
 #ifndef CircleSeparation_repulse_1_hpp
 #define CircleSeparation_repulse_1_hpp
 
-#include "naive_v1.hpp"
+#include <cmath>
 
+#include "grid.hpp"
+
+using namespace std;
 
 struct Repulse_1 {
 
-    static void Separate() {
+    static void Separate(vector<::Circle>& circles) {
         
         auto max_radius = max_element(circles.begin(), circles.end(), [](::Circle& c_0, ::Circle& c_1) {
             return c_0.radius < c_1.radius;
         })->radius;
-        
-        auto comp_density = [](::Circle& c_0, ::Circle& c_1) {
-            return c_0.density() < c_1.density();
-        };
-        
-        double min_density = min_element(circles.begin(), circles.end(), comp_density)->density();
-        double max_density = max_element(circles.begin(), circles.end(), comp_density)->density();        
         
         default_random_engine rng;
         
@@ -41,34 +37,38 @@ struct Repulse_1 {
         bool has_intersections = true;
         while (has_intersections) {
             has_intersections = false;
-            for (auto& c : cs_field) {
+            for (auto c : cs_field) {
                 auto ins = field.intersections(c);
                 if (ins.empty()) continue;
                 has_intersections = true;
                 
-                
-                
-                
-                
-                
-                
-                
-                
-                Indent shift;
-                double min_overlap = 1;
-                double max_overlap = 0;
-                for (auto& i : ins) {
-                    auto n = c->center() - i->center();
-                    min_overlap = min<double>(min_overlap, n.distance());
-                    max_overlap = max<double>(max_overlap, n.distance());
-                    shift += n;
-                } 
-                shift = shift.normed();
-                shift *= (max_overlap - min_overlap) * (max_density - c->circle()->density()) / (max_density - min_density) + min_overlap;
-                
+                decltype(c) c_2_best;
+                Point p_best, p_2_best;
+                // want to minimize this value
+                double score_best = numeric_limits<double>::max();
+                for (auto& c_2 : ins) {
+                    auto& cc = *(c->circle());
+                    auto& cc_2 = *(c_2->circle());
+                    auto to_c = cc.center - cc_2.center;
+                    // use eps to get from each other for sure
+                    double d = (-to_c.distance() + cc.radius + cc_2.radius + 1e-6) / 2.;
+                    Point p = cc.center + to_c.normed() * d;
+                    Point p_2 = cc_2.center - to_c.normed() * d;
+                    double score = cc.mass * (cc.origin - p).distance()
+                                + cc_2.mass * (cc_2.origin - p_2).distance();       
+                    if (score < score_best) {
+                        c_2_best = c_2;
+                        score_best = score;
+                        p_best = p;
+                        p_2_best = p_2;
+                    }       
+                }     
                 field.remove(c);
-                c->circle()->center += shift;
+                field.remove(c_2_best);
+                c->circle()->center = p_best;
+                c_2_best->circle()->center = p_2_best;
                 field.add(c);
+                field.add(c_2_best);
             }   
             shuffle(cs_field.begin(), cs_field.end(), rng);
         }
@@ -76,11 +76,36 @@ struct Repulse_1 {
         for (int i = 0; i < circles.size(); ++i) {
             circles[i].center = cs[i]->center;
         }
-
-    
     }
+    
+    // min is better
+    //static double RelocationScore()
+    
+    static void RestoreCircles(const vector<shared_ptr<Field::Circle>>& cs, Field& field) {
+        while (true) {
+            
+            
+            for (auto c : cs) {
+                field.remove(c);
+                auto& cc = *(c->circle()); 
+                auto ins = field.intersections(c);
+                if (ins.empty())
+                for (auto c_2 : ins) {
+                
+                }
+                
+                
+            
+            }
+            
+        
+        }
+    }
+    
+    
+    
 
-}
+};
 
 
 #endif

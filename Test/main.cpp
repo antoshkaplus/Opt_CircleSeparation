@@ -15,6 +15,7 @@
 
 #include "separation.hpp"
 #include "naive_v1.hpp"
+#include "repulse_v1.hpp"
 
 vector<::Circle> test(int n, double min_radius, double max_radius) {
     vector<::Circle> cs(n);
@@ -33,7 +34,7 @@ vector<::Circle> test(int n, double min_radius, double max_radius) {
 
 int main(int argc, const char * argv[])
 {
-    Naive_v1 naive;
+    Repulse_1 naive;
     default_random_engine rng;
     uniform_int_distribution<> distr(0, 450);
     int cs_count = distr(rng) + 50;
@@ -41,7 +42,8 @@ int main(int argc, const char * argv[])
     double max_radius = radius_distr(rng);
     auto cs = test(cs_count, 0, max_radius);
     naive.Separate(cs);
-    naive.CloseUp(cs);
+    
+    Naive_v1::CloseUp(cs);
     
     ofstream output("solution.txt");
     // origin x, y; center x, y; radius r; mass m; 

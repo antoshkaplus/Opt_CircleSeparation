@@ -16,6 +16,8 @@
 #include "separation.hpp"
 
 #include "naive_v1.hpp"
+#include "repulse_v1.hpp"
+
 
 vector<::Circle> test(int n, double min_radius, double max_radius) {
     vector<::Circle> cs(n);
@@ -44,6 +46,7 @@ int main(int argc, const char * argv[])
     for (const auto& c : cs) {
         output << c.center.x << " " << c.center.y << endl;
     }
+    Repulse_1::Separate(cs);
     output.flush();
     output.close();
     return 0;
