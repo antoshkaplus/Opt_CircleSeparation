@@ -24,7 +24,9 @@ vector<::Circle> test(int n, double min_radius, double max_radius) {
     default_random_engine rng;
     uniform_real_distribution<> mass_distr(0, 1);
     uniform_real_distribution<> radius_distr(min_radius, max_radius);
+    int i = 0;
     for (auto& c : cs) {
+        c.id = i++;
         c.mass = mass_distr(rng);
         c.center.set(mass_distr(rng), mass_distr(rng));
         c.origin.set(0, 0);

@@ -23,10 +23,11 @@ struct Circle : ant::geometry::d2::f::Circle {
     double mass;
     // origin and center
     Point origin;
+    int id;
     
     Circle(){}
     
-    Circle(double x, double y, double radius, double mass)
+    Circle(int id, double x, double y, double radius, double mass)
     : ant::geometry::d2::f::Circle(Point(x, y), radius), mass(mass), origin(x, y)  {}
 
     bool isOverlap(const Circle& c) const {
