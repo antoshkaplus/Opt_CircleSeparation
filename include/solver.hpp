@@ -32,7 +32,7 @@ struct Solver {
     static bool check(const vector<Circle>& cs) {
         for (auto i = 0; i < cs.size(); ++i) {
             for (auto j = i+1; j < cs.size(); ++j) {
-                if (cs[i].isOverlap(cs[j])) return false;
+                if (cs[i].Overlap(cs[j])) return false;
             }
         }
         return true;
@@ -222,7 +222,7 @@ struct PenaltyMethod : Solver {
         auto& cs = *cs_; 
         for (int i = 0; i < cs.size(); ++i) {
             if (i == k) continue;
-            if (!cs[k].isOverlap(cs[i])) continue;
+            if (!cs[k].Overlap(cs[i])) continue;
             res.push_back(i);
         }
         return res;

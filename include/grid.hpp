@@ -10,7 +10,7 @@
 #define __CirclesSeparation__grid__
 
 #include <iostream>
-#include "ant/geometry/d2.h"
+#include "ant/geometry/d2.hpp"
 #include "ant/grid.h"
 
 #include "circle.hpp"

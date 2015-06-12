@@ -44,8 +44,8 @@ struct Repulse_1 {
                     double d = (-to_c.distance() + cc.radius + cc_2.radius + 1e-6) / 2.;
                     Point p = cc.center + to_c.normed() * d;
                     Point p_2 = cc_2.center - to_c.normed() * d;
-                    int r = Ring(p);
-                    int r_2 = Ring(p_2);
+//                    int r = Ring(p);
+//                    int r_2 = Ring(p_2);
                     double score = cc.mass * (cc.origin - p).distance()
                                 + cc_2.mass * (cc_2.origin - p_2).distance();    
                     if (score < score_best) {

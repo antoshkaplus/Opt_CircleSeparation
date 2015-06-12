@@ -65,11 +65,7 @@ struct Naive_v1 {
         }
     }
     
-    static void CloseUp(vector<::Circle>& circles) {
-        auto comp_density = [](::Circle& c_0, ::Circle& c_1) {
-            return c_0.density() < c_1.density();
-        };
-        
+    static void CloseUp(vector<::Circle>& circles) {        
         Field field = Util::ToField(circles);
   
         auto dec_density = [](shared_ptr<Field::Circle> p_0, shared_ptr<Field::Circle> p_1) {
