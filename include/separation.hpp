@@ -11,7 +11,6 @@
 
 #include <iostream>
 
-#include "solver.hpp"
 
 //struct CirclesSeparation {
 //    vector<double> minimumWork(vector<double>& x, vector<double>& y, vector<double>& r, vector<double>& m) {

@@ -26,8 +26,8 @@ endforeach( OUTPUTCONFIG CMAKE_CONFIGURATION_TYPES )
 
 file(GLOB SOURCE_FILES "./src/*.cpp")
 file(GLOB HEADER_FILES "./include/*.hpp")
-file(GLOB TEST_FILES "./test/*")
-file(GLOB APP_FILES "./app/*")
+file(GLOB TEST_FILES "./tester/*")
+file(GLOB APP_FILES "./solver/*")
 
 
 include_directories("./include")
@@ -41,10 +41,12 @@ add_library(circlesep STATIC ${SOURCE_FILES} ${HEADER_FILES})
 target_link_libraries(circlesep ${ANT_LIBRARY})
 
 add_executable(solver ${APP_FILES})
-target_link_libraries(solver ${ANT_LIBRARY} ${circlesep})
+target_link_libraries(solver 
+    ${ANT_LIBRARY} 
+    circlesep)
 
 add_executable(tester ${TEST_FILES})
 target_link_libraries(tester 
     ${ANT_LIBRARY} 
-    ${CircleSeparation})
+    circlesep)
     
