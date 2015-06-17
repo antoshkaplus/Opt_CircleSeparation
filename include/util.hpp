@@ -80,14 +80,13 @@ public:
     template<class ForwardIt>
     void Add(ForwardIt b, const ForwardIt& e) {
         while (b != e) {
-            Add(&*b++);
-            
+            Add(&(*(b++)));
         }
     }
     
 private: 
     Field& operator=(const Field& f) { return *this; }
-    
+        
 public:
     //    static Field Copy(Field& field) {
     //        Field res;
@@ -135,6 +134,10 @@ struct Problem {
         return circles_.size();
     }
     
+    // if -1 then no overlaps at all
+    //Index BiggestOverlap()
+    
+    // sorting from biggest to smallest
     template<class Score>
     void Order(vector<Index>& order, Score& score) {
         static vector<double> ss;
@@ -148,6 +151,32 @@ struct Problem {
         });
     }
     
+    bool HasOverlap(Index i) {
+        return field.HasIntersection(&circles_[i]);
+    }
+    
+    
+    void Swap(Index i_0, Index i_1) {
+        Point p_0 = circles_[i_0].center();
+        Point p_1 = circles_[i_1].center();
+        field.Relocate(&circles_[i_0], p_1);
+        field.Relocate(&circles_[i_1], p_0);
+    }
+    
+    
+    double WorkChange(Index i, const Point& new_center) const {
+        auto& c = circles_[i];
+        auto& o = c.origin;  
+        return c.mass * (o.Distance(new_center) - o.Distance(c.center()));
+    }
+    
+    double Work() const {
+        double work = 0;
+        for (auto& c : circles_) {
+            work += c.mass * c.origin.Distance(c.center());
+        }
+        return work;
+    }
     
 public:
     Field field;
@@ -176,17 +205,21 @@ public:
 };
 
 // goal is to minimize work
-struct Result {
-    Result(const Problem& problem) {
+struct ProblemState {
+    ProblemState(const Problem& problem) {
         centers.reserve(problem.Size());
-        work = 0;
+        work = problem.Work();
         for (auto& c : problem) {
             centers.push_back(c.center());
-            work += c.mass * c.origin.Distance(c.center());
         }
     }
 
-    
+    void Bring(Problem& problem) {
+        auto N = centers.size();
+        for (int i = 0; i < N; ++i) {
+            problem.field.Relocate(&problem[i], centers[i]);
+        }
+    }
 
     vector<Point> centers;
     double work;
@@ -197,19 +230,26 @@ bool BS_CloseUp(Problem& problem, Index i);
 vector<double> ConvertToOutput(const Problem& problem);
 void IncreaseRadius(vector<::Circle>& cs, double eps);
 void ReadCircles(istream& in, vector<::Circle>& cs);
+void ZoomOut(vector<::Circle>& cs);
 
+
+template<class ForwardIt>
+bool ValidArrangement(ForwardIt b, ForwardIt e) {
+    for (ForwardIt it = b; it != e; ++it) {
+        for (ForwardIt it_2 = next(it); it_2 != e; ++it_2) {
+            if (it->Intersects(*it_2)) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
 
 
 template<class Score>
 void CloseUp(Problem& problem, Score& score) {        
-    vector<Index> order(problem.Size());
-    vector<double> ss(problem.Size());
-    iota(order.begin(), order.end(), 0);
-    transform(order.begin(), order.end(), ss.begin(), 
-              [&](Index i) { return score(problem[i]); });
-    sort(order.begin(), order.end(), [&](Index i_0, Index i_1) {
-        return ss[i_0] > ss[i_1];
-    });
+    static vector<Index> order;
+    problem.Order(order, score);
     bool did_close_up = true;
     while (did_close_up) {
         did_close_up = false;

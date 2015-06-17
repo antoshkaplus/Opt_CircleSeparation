@@ -16,6 +16,7 @@
 #include "util.hpp"
 #include "score.hpp"
 #include "sa.hpp"
+#include "repulsion_v2.hpp"
 
 
 vector<::Circle> TestCase(int n, double max_radius) {
@@ -34,16 +35,17 @@ vector<::Circle> TestCase(int n, double max_radius) {
 
 
 int main(int argc, const char * argv[]) {
+    
+    
     default_random_engine rng;
     uniform_int_distribution<> distr(0, 450);
     int cs_count = distr(rng) + 50;
     uniform_real_distribution<> radius_distr(sqrt(1./cs_count), sqrt(5./cs_count));
     double max_radius = radius_distr(rng);
     auto cs = TestCase(cs_count, max_radius);
-    
     Problem problem(cs);
     Score<1, -2> score;
-    SA<decltype(score)> solver;
+    Repulsion_v2<decltype(score)> solver;
     solver.set_score(score);
     solver.MinimumWork(problem);
     cs.assign(problem.begin(), problem.end());

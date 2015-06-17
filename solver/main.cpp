@@ -16,6 +16,7 @@
 #include "ant/core/core.hpp"
 #include "repulsion_v1.hpp"
 #include "score.hpp"
+#include "sa.hpp"
 
 
 void Write(ostream& out, const vector<double>& ds) {
@@ -37,41 +38,22 @@ using namespace std;
 int main(int argc, const char * argv[])
 {
     command_line_parser parser(argv, argc);
-    string input, output, logput;
-    if (parser.exists("i")) {
-        input = parser.getValue("i");
-    } else {
-        cerr << "unable to find input file path";
-        return 1;
-    }
-    if (parser.exists("o")) {
-        output = parser.getValue("o");
-    } else {
-        cerr << "unable to find output file path";
-        return 1;
-    }
-    if (parser.exists("log")) {
-        logput = parser.getValue("log");
-    } else {
-        cerr << "unable to find log file path";
-        return 1;
-    }
-    ifstream in(input);
-    ofstream out(output);
-    ofstream log(logput);
     vector<::Circle> cs;
-    ReadCircles(in, cs);
+    ReadCircles(cin, cs);
     IncreaseRadius(cs, RADIUS_EPS);
-    log << "read values" << endl;
+    cerr << "read values" << endl;
     Problem problem(cs);
-    Score<1, -2> score;
-    Repulsion_v1<decltype(score)> solver;
+    // Score<1, -2> score;
+     Score<1, -2> score; // best
+    // Score<2, -3> score;
+    SA<decltype(score)> solver;
     solver.set_score(score);
-    log << "trying to solve" << endl;
+    cerr << "trying to solve" << endl;
     solver.MinimumWork(problem);
+    cerr << "final work: " << problem.Work() << endl;
     cs.assign(problem.begin(), problem.end());
-    log << "writing down result" << endl;
-    WriteCircles(out, cs);
+    cerr << "writing down result" << endl;
+    WriteCircles(cout, cs);
     return 0;
 }
 

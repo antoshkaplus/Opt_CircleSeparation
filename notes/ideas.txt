@@ -21,6 +21,14 @@ circle_separation_app - executable for running purposes
 circle
 usage of ParticleGrid ? is needed
 
+- grow circles periodically
+- keep track of all intersections
+- make intersections as part of the work... grow weight periodically (more work) (can't do that)
+
+- SIMULATION IS THE ANSWER
+- NEED MORE Sensativity when create new solution (elements should be closer to each other)
+
+
 
 //father best
 0) 11.622896566548945 
