@@ -7,7 +7,7 @@ from subprocess import Popen, PIPE
 errwrite = lambda x: sys.stderr.write(x + "\n")
 
 temp_dir = "./../temp/"
-executable = "./../bin/solver"
+executable = "./../bin/app"
 
 if not os.path.isdir(temp_dir):
     os.mkdir(temp_dir)

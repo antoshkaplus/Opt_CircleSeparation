@@ -5,7 +5,7 @@ cmake_minimum_required (VERSION 3.2)
 project (CirclesSeparation)
 
 
-list(APPEND CMAKE_CXX_FLAGS "-std=c++1y -Werror -Wall")
+list(APPEND CMAKE_CXX_FLAGS "-std=c++1y -Werror -Wall -Wno-sign-compare")
 
 
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
@@ -27,7 +27,6 @@ endforeach( OUTPUTCONFIG CMAKE_CONFIGURATION_TYPES )
 file(GLOB SOURCE_FILES "./src/*.cpp")
 file(GLOB HEADER_FILES "./include/*.hpp")
 file(GLOB TEST_FILES "./tester/*")
-file(GLOB APP_FILES "./solver/*")
 
 
 include_directories("./include")
@@ -40,10 +39,28 @@ find_library(ANT_LIBRARY ant)
 add_library(circlesep STATIC ${SOURCE_FILES} ${HEADER_FILES})
 target_link_libraries(circlesep ${ANT_LIBRARY})
 
-add_executable(solver ${APP_FILES})
-target_link_libraries(solver 
-    ${ANT_LIBRARY} 
-    circlesep)
+
+# submit
+
+add_executable(v_1 submit/v_1.cpp app/main_template.cpp)
+set_target_properties(v_1 PROPERTIES COMPILE_FLAGS "-Wno-sign-compare -Wno-maybe-uninitialized -Wno-unused-variable -Wno-error=unused-variable -Wno-error=unused-value -Wno-return-type -Wno-parentheses -Wno-error=parentheses")
+
+# others
+
+add_executable(ainu7 others/ainu7.cpp app/main_template.cpp)
+set_target_properties(ainu7 PROPERTIES COMPILE_FLAGS "-Wno-sign-compare -Wno-maybe-uninitialized -Wno-unused-variable -Wno-error=unused-variable -Wno-error=unused-value -Wno-return-type -Wno-parentheses -Wno-error=parentheses")
+
+add_executable(murrayr others/murrayr.cpp app/main_template.cpp)
+set_target_properties(murrayr PROPERTIES COMPILE_FLAGS "-Wno-sign-compare -Wno-maybe-uninitialized -Wno-unused-variable -Wno-error=unused-variable -Wno-error=unused-value -Wno-return-type -Wno-parentheses -Wno-error=parentheses")
+
+# methods
+
+add_executable(greedy app/methods.cpp app/main_template.cpp)
+target_compile_definitions(greedy PUBLIC -DC_SEP_GREEDY)
+
+add_executable(greedy_tester app/methods.cpp app/test_template.cpp)
+target_link_libraries(greedy_tester circlesep)
+target_compile_definitions(greedy_tester PUBLIC -DC_SEP_GREEDY)
 
 add_executable(tester ${TEST_FILES})
 target_link_libraries(tester 

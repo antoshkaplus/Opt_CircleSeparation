@@ -1,28 +1,19 @@
-//
-//  score.hpp
-//  CirclesSeparation
-//
-//  Created by Anton Logunov on 6/13/15.
-//
-//
-
-#ifndef CirclesSeparation_score_hpp
-#define CirclesSeparation_score_hpp
+#pragma once
 
 #include "util.hpp"
 
 
-/// input is to ratios
-template<int mass_pow, int radius_pow>
 class Score {
 public:
-    
+    Score() {}
+    Score(double mass_pow, double rad_pow) : mass_pow_(mass_pow), rad_pow_(rad_pow) {}
+
     double operator()(const ::Circle& circle) const {
-        return pow(circle.mass, mass_pow)*pow(circle.radius, radius_pow);
+        return pow(circle.mass, mass_pow_)*pow(circle.radius, rad_pow_);
     }
 
+private:
+    double mass_pow_;
+    double rad_pow_;
+
 };
-
-
-
-#endif

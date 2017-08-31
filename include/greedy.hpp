@@ -1,19 +1,11 @@
-//
-//  greedy.hpp
-//  CirclesSeparation
-//
-//  Created by Anton Logunov on 6/13/15.
-//
-//
-
-#ifndef CirclesSeparation_greedy_hpp
-#define CirclesSeparation_greedy_hpp
-
+#pragma once
 
 #include "util.hpp"
+#include "field.hpp"
+
 
 template<class Score>
-struct Greedy : public ScoreSolver<Score> {
+struct Greedy {
 private:
     
     constexpr static const double kCompactedness = 0.01;
@@ -21,19 +13,22 @@ private:
    
 public:
     
-    void MinimumWork(Problem& problem) override {
-        auto& field = problem.field;
+    vector<Point> MinimumWork(Problem& problem) {
+        auto cs = ProblemToCircles(problem);
+        for_each(cs.begin(), cs.end(), [](auto& c) { c.radius += RADIUS_EPS; });
+
+        auto field = BuildField(cs);
+        field.Clear();
+
+        Order ordering;
+        ordering.DoOrder(cs, score);
         
-        vector<Index> order;
-        problem.Order(order, *score);
-        
-        for (auto i : order) {
-            auto& c = problem[i];
-            field.Remove(&c);
+        for (auto i : ordering.get()) {
+            auto c = cs.data() + i;
             double angle = 0;
             double distance = 0;
             Index index = 0;
-            while (!(inters = field.HasIntersection(c)).empty()) {
+            while (field.HasIntersection(c)) {
                 // should be something similar to spiral
                 distance = kCompactedness * sqrt(index);
                 angle = index * kGoldenAngle;
@@ -43,7 +38,20 @@ public:
             }
             field.Add(c);
         }
+
+        assert(ValidArrangement(cs.begin(), cs.end()));
+
+        vector<Point> res(cs.size());
+        transform(cs.begin(), cs.end(), res.begin(), [](auto& c) {
+            return c.center();
+        });
+        return res;
     }
+
+    void set_score(Score s) {
+        score = move(s);
+    }
+
 private:
 
     //    
@@ -101,7 +109,7 @@ private:
     //    }
     //    
     // cs : ordered circles
-    // 
-};
+    //
 
-#endif
+    Score score;
+};
