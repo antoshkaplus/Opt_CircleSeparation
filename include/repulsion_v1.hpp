@@ -1,37 +1,30 @@
-//
-//  repulsion.hpp
-//  CirclesSeparation
-//
-//  Created by Anton Logunov on 6/13/15.
-//
-//
-
-#ifndef CirclesSeparation_repulsion_hpp
-#define CirclesSeparation_repulsion_hpp
+#pragma once
 
 #include "util.hpp"
+#include "field.hpp"
 
+
+// the score corresponds to circles
 template<class Score>
-class Repulsion_v1 : public ScoreSolver<Score> {
-    using ScoreSolver<Score>::score_;
-
+class Repulsion_v1 {
 public:
-    void MinimumWork(Problem& problem) {
-        auto& score = *score_; 
-        auto min_s = score(*MinElement(problem.begin(), problem.end(), score));
-        auto max_s = score(*MaxElement(problem.begin(), problem.end(), score));
+    vector<Point> MinimumWork(Problem& problem) {
+        vector<Circle> cs = ProblemToCircles(problem);
+
+        auto min_s = score_(*MinElement(cs.begin(), cs.end(), score_));
+        auto max_s = score_(*MaxElement(cs.begin(), cs.end(), score_));
         
-        vector<Index> inds(problem.Size());
+        vector<Index> inds(problem.size());
         iota(inds.begin(), inds.end(), 0);
         
-        auto& field = problem.field;
+        auto&& field = BuildField(cs);
         bool has_intersections = true;
         while (has_intersections) {
             has_intersections = false;
             shuffle(inds.begin(), inds.end(), RNG);
             for (auto i : inds) {
-                auto& c = problem[i];
-                auto ins = field.Intersections(&problem[i]);
+                auto& c = cs[i];
+                auto ins = field.Intersections(&c);
                 if (ins.empty()) continue;
                 has_intersections = true;
                 ::Indent shift;
@@ -44,11 +37,20 @@ public:
                     shift += n;
                 } 
                 shift = shift.normed();
-                shift *= (max_overlap - min_overlap) * (max_s - score(c)) / (max_s - min_s) + min_overlap;
+                shift *= (max_overlap - min_overlap) * (max_s - score_(c)) / (max_s - min_s) + min_overlap;
                 field.Shift(&c, shift);
             }   
         }
-    }
-};
 
-#endif
+        assert(ValidArrangement(cs.begin(), cs.end()));
+
+        return ExtractCenters(cs);
+    }
+
+    void set_score(Score s) {
+        score_ = move(s);
+    }
+
+private:
+    Score score_;
+};

@@ -25,10 +25,18 @@ struct Problem {
 
     Problem() {}
     Problem(vector<double> x, vector<double> y, vector<double> r, vector<double> m)
-        : x(x), y(y), r(r), m(m) {}
+        : x(std::move(x)), y(std::move(y)), r(std::move(r)), m(std::move(m)) {}
 
     Count size() const {
         return x.size();
+    }
+
+    double Work(const vector<Point>& ps) const {
+        double work = 0;
+        for (int i = 0; i < size(); ++i) {
+            work += m[i] * Point{x[i], y[i]}.Distance(ps[i]);
+        }
+        return work;
     }
 };
 
@@ -69,13 +77,23 @@ inline vector<Circle> ProblemToCircles(const Problem& pr) {
     return res;
 }
 
+inline void PlaceCircles(vector<Circle>& cs, const vector<Point>& ps) {
+    for (auto i = 0; i < cs.size(); ++i) {
+        cs[i].set_center(ps[i]);
+    }
+}
 
-bool BS_CloseUp(Problem& problem, Index i);
-vector<double> ConvertToOutput(const Problem& problem);
+inline vector<Point> ExtractCenters(const vector<Circle>& cs) {
+    vector<Point> res(cs.size());
+    transform(cs.begin(), cs.end(), res.begin(), [](auto& c) {
+        return c.center();
+    });
+    return res;
+}
+
 void IncreaseRadius(vector<::Circle>& cs, double eps);
 void ReadCircles(istream& in, vector<::Circle>& cs);
 void ZoomOut(vector<::Circle>& cs);
-
 
 inline vector<double> ToSolution(const vector<Point>& cs) {
     vector<double> s(2*cs.size());
@@ -183,7 +201,7 @@ inline Problem GenerateProblem(Count sz, double max_r) {
         m[i] = distr(RNG);
         r[i] = max_r * distr(RNG);
     }
-    return {x, y, r, m};
+    return {std::move(x), std::move(y), std::move(r), std::move(m)};
 }
 
 
@@ -197,31 +215,34 @@ inline Problem GenerateProblem(Count sz) {
 
 class ProblemGroup {
 
-    constexpr Count kMax_k_1 = 9;
-    constexpr Count kMax_k_2 = 4;
+    static constexpr Count kMax_k_1 = 9;
+    static constexpr Count kMax_k_2 = 4;
 
-    Index getIndex(Count sz, double max_r) const {
+public:
+    static Index getIndex(Count sz, double max_r) {
         Index k_1 = (sz - 50) / 50;
-        Index k_2 = max(max_r * sz - 1, 0);
+        Index k_2 = max<Index>(max_r * sz - 1, 0);
         return k_1 * kMax_k_2 + k_2;
     }
 
-    Problem generate(Index group) const {
+    static Problem generate(Index group) {
         Index k_1 = group / kMax_k_2;
         Index k_2 = group % kMax_k_2;
 
         uniform_int_distribution<> sz_distr(0, 50);
-        Count sz = 50 * k_1 + sz_distr(RNG);
+        Count sz = 50 + 50 * k_1 + sz_distr(RNG);
         double max_r = (k_2 + 1 + uniform_real_distribution<>()(RNG)) / sz;
 
         return GenerateProblem(sz, max_r);
     }
 
-    Count count() const {
+    static Count count() {
         return kMax_k_1 * kMax_k_2;
     }
 
 };
+
+
 
 
 //

@@ -6,52 +6,17 @@
 //
 //
 
+#include "field.hpp"
 #include "util.hpp"
 
 using namespace std;
 
 default_random_engine RNG;
 
-bool BS_CloseUp(Problem& problem, Index i) {
-//    auto& field = problem.field;
-//    auto& circle = problem[i];
-//
-//    field.Remove(&circle);
-//    bool res = false;
-//    Point
-//    p_old = circle.center(),
-//    p_a = circle.center(),
-//    p_b = circle.origin;
-//
-//    while (p_a.Distance(p_b) > 1.e-5) {
-//        circle.set_center((p_a + p_b)/2.);
-//        if (problem.field.HasIntersection(&circle)) {
-//            p_b = circle.center();
-//        } else {
-//            p_a = circle.center();
-//        }
-//    }
-//    circle.set_center(p_a);
-//    if (p_old.Distance(circle.center()) > 1.e-5) {
-//        res = true;
-//    }
-//    field.Add(&circle);
-//    return res;
-    return true;
-}
 
-vector<double> ConvertToOutput(const Problem& problem) {
-//    Count N = problem.Size();
-//    vector<double> s(2*N);
-//    for (auto i = 0; i < N; ++i) {
-//        auto& p = problem[i].center();
-//        assert(p.x > -100 && p.x < 100 && p.y > -100 && p.y < 100);
-//        s[2*i]      = p.x;
-//        s[2*i+1]    = p.y;
-//    }
-//    return s;
-    return {};
-}
+// close up all random
+// close up all in specific order that may be influenced circles.
+// but random sounds like workable solution
 
 void IncreaseRadius(vector<::Circle>& cs, double eps) {
     for (auto& c : cs) {

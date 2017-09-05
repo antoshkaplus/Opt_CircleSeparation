@@ -62,8 +62,17 @@ add_executable(greedy_tester app/methods.cpp app/test_template.cpp)
 target_link_libraries(greedy_tester circlesep)
 target_compile_definitions(greedy_tester PUBLIC -DC_SEP_GREEDY)
 
+add_executable(rep_v1 app/methods.cpp app/main_template.cpp)
+target_link_libraries(rep_v1 circlesep)
+target_compile_definitions(rep_v1 PUBLIC -DC_SEP_REP_1)
+
+# helpers
+
+add_executable(opt app/opt.cpp)
+target_link_libraries(opt circlesep ${ANT_LIBRARY} tbb)
+
 add_executable(tester ${TEST_FILES})
-target_link_libraries(tester 
-    ${ANT_LIBRARY} 
-    circlesep)
-    
+target_link_libraries(tester
+        ${ANT_LIBRARY}
+        circlesep)
+

@@ -13,7 +13,7 @@ private:
    
 public:
     
-    vector<Point> MinimumWork(Problem& problem) {
+    vector<Point> MinimumWork(const Problem& problem) {
         auto cs = ProblemToCircles(problem);
         for_each(cs.begin(), cs.end(), [](auto& c) { c.radius += RADIUS_EPS; });
 
