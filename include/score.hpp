@@ -9,8 +9,9 @@ public:
     Score(double mass_pow, double rad_pow) : mass_pow_(mass_pow), rad_pow_(rad_pow) {}
 
     double operator()(const ::Circle& circle) const {
-        return pow(circle.mass, mass_pow_)*pow(circle.radius, rad_pow_);
+        return pow(circle.mass, mass_pow_)/pow(circle.radius, rad_pow_);
     }
+    // mass / (factor * rad**2)
 
 private:
     double mass_pow_;

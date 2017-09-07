@@ -66,3 +66,5 @@ inline void OptimizeRadFactorMesh() {
         Println(cout, pows[i], "mesh for group " + std::to_string(i));
     }
 }
+
+// try golden search on this one

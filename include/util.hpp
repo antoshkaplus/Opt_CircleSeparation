@@ -64,6 +64,10 @@ struct Circle : ant::geometry::d2::f::Circle {
         ant::geometry::d2::f::Circle::center = p;
     }
 
+    void reset_center() {
+        ant::geometry::d2::f::Circle::center = origin;
+    }
+
     bool Intersects(const Circle& p) const {
         return center().Distance(p.center()) < radius + p.radius;
     }
@@ -143,10 +147,10 @@ bool ValidArrangement(ForwardIt b, ForwardIt e) {
     return true;
 }
 
-
-template<class Score>
-void CloseUp(Problem& problem, Score& score) {        
-    static vector<Index> order;
+//
+//template<class Score>
+//void CloseUp(Problem& problem, Score& score) {
+//    static vector<Index> order;
 //    problem.Order(order, score);
 //    bool did_close_up = true;
 //    while (did_close_up) {
@@ -157,7 +161,7 @@ void CloseUp(Problem& problem, Score& score) {
 //            }
 //        }
 //    }
-}
+//}
 
 
 class Order {

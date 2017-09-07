@@ -3,7 +3,7 @@
 #include "field.hpp"
 
 
-bool BS_CloseUp(Field& field, Circle& c) {
+inline bool BS_CloseUp(Field& field, Circle& c) {
     field.Remove(&c);
     bool res = false;
     Point
@@ -27,7 +27,7 @@ bool BS_CloseUp(Field& field, Circle& c) {
     return res;
 }
 
-void BS_CloseUpAllRandom(vector<Circle>& cs) {
+inline void BS_CloseUpAllRandom(vector<Circle>& cs) {
     auto field = BuildField(cs);
     vector<Index> order(cs.size());
     iota(order.begin(), order.end(), 0);

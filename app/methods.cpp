@@ -1,6 +1,7 @@
 
 #include "circles_sep.hpp"
 #include "greedy.hpp"
+#include "greedy_v2.hpp"
 #include "score.hpp"
 #include "repulsion_v1.hpp"
 #include "close_up.hpp"
@@ -12,6 +13,20 @@ vector<double> CirclesSeparation::minimumWork(vector<double> x, vector<double> y
     Problem pr(std::move(x), std::move(y), std::move(r), std::move(m));
 
     Greedy<Score> g;
+    g.set_score(Score(1, 0));
+    auto cs = g.MinimumWork(pr);
+
+    return ToSolution(cs);
+}
+
+#endif
+
+#ifdef C_SEP_GREEDY_2
+
+vector<double> CirclesSeparation::minimumWork(vector<double> x, vector<double> y, vector<double> r, vector<double> m) {
+    Problem pr(std::move(x), std::move(y), std::move(r), std::move(m));
+
+    Greedy_v2<Score> g;
     g.set_score(Score(1, 0));
     auto cs = g.MinimumWork(pr);
 
