@@ -33,7 +33,8 @@ if options.cpu_count:
 
 def worker(i):
     print "start seed: " + str(i)
-    command = ["java", "-jar", "CirclesSeparationVis.jar", "-exec", "../bin/" + VERSION + " -d", "-novis", "-seed", str(i)]
+    # 0 seed goes to random board
+    command = ["java", "-jar", "CirclesSeparationVis.jar", "-exec", "../bin/" + VERSION + " -d", "-novis", "-seed", str(i+1)]
     s = sp.check_output(command)
     lines = s.split("\n")
     for ln in lines:

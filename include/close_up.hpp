@@ -3,8 +3,7 @@
 #include "field.hpp"
 
 
-inline bool BS_CloseUp(Field& field, Circle& c) {
-    field.Remove(&c);
+inline bool CloseUp(Field& field, Circle& c) {
     bool res = false;
     Point
         p_old = c.center(),
@@ -23,7 +22,6 @@ inline bool BS_CloseUp(Field& field, Circle& c) {
     if (p_old.Distance(c.center()) > 1.e-5) {
         res = true;
     }
-    field.Add(&c);
     return res;
 }
 
@@ -36,7 +34,7 @@ inline void BS_CloseUpAllRandom(vector<Circle>& cs) {
         close_up = false;
         shuffle(order.begin(), order.end(), RNG);
         for (auto i : order) {
-            close_up |= BS_CloseUp(field, cs[i]);
+            close_up |= CloseUp(field, cs[i]);
         }
     }
 }

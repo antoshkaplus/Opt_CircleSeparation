@@ -2,15 +2,11 @@
 
 #include "util.hpp"
 #include "field.hpp"
+#include "placement.hpp"
 
 
 template<class Score>
 struct Greedy {
-private:
-    
-    constexpr static const double kCompactedness = 0.01;
-    constexpr static const double kGoldenAngle = 2*M_PI*0.381966;
-   
 public:
     
     vector<Point> MinimumWork(const Problem& problem) {
@@ -22,30 +18,13 @@ public:
 
         Order ordering;
         ordering.DoOrder(cs, score);
-        
-        for (auto i : ordering.get()) {
-            auto c = cs.data() + i;
-            double angle = 0;
-            double distance = 0;
-            Index index = 0;
-            while (field.HasIntersection(c)) {
-                // should be something similar to spiral
-                distance = kCompactedness * sqrt(index);
-                angle = index * kGoldenAngle;
-                c->set_center(Point(distance*cos(angle) + c->center().x, 
-                                    distance*sin(angle) + c->center().y));
-                ++index;
-            }
-            field.Add(c);
-        }
+
+        SpiralPlacement placement(field);
+        placement.PlaceAll(cs, ordering.get());
 
         assert(ValidArrangement(cs.begin(), cs.end()));
 
-        vector<Point> res(cs.size());
-        transform(cs.begin(), cs.end(), res.begin(), [](auto& c) {
-            return c.center();
-        });
-        return res;
+        return ExtractCenters(cs);
     }
 
     void set_score(Score s) {

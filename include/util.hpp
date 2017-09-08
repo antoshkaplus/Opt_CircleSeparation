@@ -71,7 +71,22 @@ struct Circle : ant::geometry::d2::f::Circle {
     bool Intersects(const Circle& p) const {
         return center().Distance(p.center()) < radius + p.radius;
     }
+
+    double Work() const {
+        return mass*center().Distance(origin);
+    }
+
+    friend void SwapCenters(Circle& c_1, Circle& c_2);
 };
+
+
+inline void SwapCenters(Circle& c_1, Circle& c_2) {
+    auto p_1 = c_1.center();
+    auto p_2 = c_2.center();
+    c_1.set_center(p_2);
+    c_2.set_center(p_1);
+}
+
 
 inline vector<Circle> ProblemToCircles(const Problem& pr) {
     vector<Circle> res(pr.size());
@@ -94,6 +109,39 @@ inline vector<Point> ExtractCenters(const vector<Circle>& cs) {
     });
     return res;
 }
+
+inline void ResetCenters(vector<Circle>& cs) {
+    for_each(cs.begin(), cs.end(), [](auto& c) { c.reset_center(); });
+}
+
+struct CircleChangeStack {
+
+    CircleChangeStack(vector<Circle>& cs) : cs_(&cs) {}
+
+    void Push(Index i, Index j) {
+        c_1 = cs_->at(i).center();
+        c_2 = cs_->at(j).center();
+        i_1 = i;
+        i_2 = j;
+    }
+
+    void Pop() {
+        cs_->at(i_1).set_center(c_1);
+        cs_->at(i_2).set_center(c_2);
+    }
+
+private:
+    vector<Circle>* cs_;
+    Point c_1, c_2;
+    Index i_1, i_2;
+};
+
+// 1 means totally the same
+inline bool SimilarSize(const Circle& c_1, const Circle& c_2, double ratio) {
+    auto minmax_rad = minmax(c_1.radius, c_2.radius);
+    return minmax_rad.first / minmax_rad.second > ratio;
+}
+
 
 void IncreaseRadius(vector<::Circle>& cs, double eps);
 void ReadCircles(istream& in, vector<::Circle>& cs);
