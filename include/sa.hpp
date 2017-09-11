@@ -1,17 +1,9 @@
-//
-//  naive_v1.hpp
-//  CircleSeparation
-//
-//  Created by Anton Logunov on 2/8/15.
-//
-//
-
-#ifndef CircleSeparation_naive_v1_hpp
-#define CircleSeparation_naive_v1_hpp
+#pragma once
 
 #include <cmath>
 
 #include "util.hpp"
+#include "close_up.hpp"
 #include "repulsion_v2.hpp"
 
 using namespace std;
@@ -26,20 +18,44 @@ using namespace std;
 
 
 template<class Score>
-class SA : public ScoreSolver<Score>  {
-    using ScoreSolver<Score>::score_;
-    
+class SA {
+
+    struct ProblemState {
+        ProblemState(const Problem& problem) {
+            centers.reserve(problem.Size());
+            work = problem.Work();
+            for (auto& c : problem) {
+                centers.push_back(c.center());
+            }
+        }
+
+        void Bring(Problem& problem) {
+            auto N = centers.size();
+            for (int i = 0; i < N; ++i) {
+                problem.field.Relocate(&problem[i], centers[i]);
+            }
+        }
+
+        vector<Point> centers;
+        double work;
+    };
+
+
 public:
     void MinimumWork(Problem& problem) {
-        auto& s = *score_;
-        auto& p = problem;
-        Count N = p.Size();
+
+        Count N = problem.size();
 
         Repulsion_v2<Score> separator;
-        separator.set_score(s);
-        separator.MinimumWork(p);
-        CloseUp(p, s);
-        ProblemState S_cur(p);
+        separator.set_score(score_);
+        auto ps = separator.MinimumWork(problem);
+
+        auto cs = ProblemToCircles(problem);
+        auto field = BuildField(cs);
+
+        BS_CloseUpAllRandom(cs);
+
+        ProblemState S_cur(cs);
         ProblemState S_best = S_cur;
         
         uniform_int_distribution<> distr(0, N-1);
@@ -56,11 +72,12 @@ public:
             Index best = i;
             for (int j = 0; j < N; ++j) {
                 if (i == j) continue;
-                double r_0 = p[i].radius;
-                double r_1 = p[j].radius;
-                Point c_0 = p[i].center();
-                Point c_1 = p[j].center();
+                double r_0 = cs[i].radius;
+                double r_1 = cs[j].radius;
+                Point c_0 = cs[i].center();
+                Point c_1 = cs[j].center();
                 // this parameter is important
+                // is similar radious function ???
                 if (abs(r_0 - r_1) > (r_0 + r_1)/5.) continue;
                 double work_change = p.WorkChange(i, c_1) + p.WorkChange(j, c_0);
                 if (work_change < best_work_change) {
@@ -85,11 +102,22 @@ public:
                 }
             } else if (tt > rand(RNG)) {
                 S_cur = S;
+
+                // there is no convergence what so ever. not really a SA algorithm.
+                // more like random search of some sort.
             }
             S_cur.Bring(p);
         }
         S_best.Bring(p);
     }
+
+    void set_score(Score s) {
+        score_ = move(s);
+    }
+
+private:
+    Score score_;
+
 };
 
 
@@ -175,4 +203,3 @@ public:
 //    
 //};
 //
-#endif

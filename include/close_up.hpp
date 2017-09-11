@@ -19,7 +19,7 @@ inline bool CloseUp(Field& field, Circle& c) {
         }
     }
     c.set_center(p_a);
-    if (p_old.Distance(c.center()) > 1.e-5) {
+    if (p_old != c.center()) {
         res = true;
     }
     return res;
@@ -34,7 +34,9 @@ inline void BS_CloseUpAllRandom(vector<Circle>& cs) {
         close_up = false;
         shuffle(order.begin(), order.end(), RNG);
         for (auto i : order) {
+            field.Remove(&cs[i]);
             close_up |= CloseUp(field, cs[i]);
+            field.Add(&cs[i]);
         }
     }
 }

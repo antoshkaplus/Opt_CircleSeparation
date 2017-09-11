@@ -1,38 +1,28 @@
-//
-//  repulsion_v2.hpp
-//  CirclesSeparation
-//
-//  Created by Anton Logunov on 6/16/15.
-//
-//
-
-#ifndef CirclesSeparation_repulsion_v2_hpp
-#define CirclesSeparation_repulsion_v2_hpp
+#pragma once
 
 #include "util.hpp"
+#include "field.hpp"
+
 
 template<class Score>
-class Repulsion_v2 : public ScoreSolver<Score> {
-    using ScoreSolver<Score>::score_;
-    
+class Repulsion_v2 {
 public:
-    void MinimumWork(Problem& problem) {
-        auto& score = *score_; 
-//        auto score_ptr = [&](const Circle* c) {
-//            return score(*c);
-//        };
-        vector<Index> order;
-        problem.Order(order, score);
+    vector<Point> MinimumWork(Problem& problem) {
+        vector<Circle> cs = ProblemToCircles(problem);
+
+        Order order;
+        auto ordering = order.DoOrder(cs, score_);
+
         // need most pathetic circles first
-        reverse(order.begin(), order.end());
-        
-        auto& field = problem.field;
+        reverse(ordering.begin(), ordering.end());
+
+        auto field = BuildField(cs);
         bool has_intersections = true;
         while (has_intersections) {
             has_intersections = false;
-            for (auto i : order) {
-                auto& c = problem[i];
-                auto ins = field.Intersections(&problem[i]);
+            for (auto i : ordering) {
+                auto& c = cs[i];
+                auto ins = field.Intersections(&cs[i]);
                 if (ins.empty()) continue;
                 has_intersections = true;
                 
@@ -43,8 +33,16 @@ public:
                 field.Shift(&c, t);
             }   
         }
+
+        assert(ValidArrangement(cs.begin(), cs.end()));
+
+        return ExtractCenters(cs);
     }
+
+    void set_score(Score s) {
+        score_ = move(s);
+    }
+
+private:
+    Score score_;
 };
-
-
-#endif

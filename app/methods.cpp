@@ -4,6 +4,7 @@
 #include "greedy_v2.hpp"
 #include "score.hpp"
 #include "repulsion_v1.hpp"
+#include "repulsion_v2.hpp"
 #include "close_up.hpp"
 #include "reorder.hpp"
 
@@ -94,6 +95,20 @@ vector<double> CirclesSeparation::minimumWork(vector<double> x, vector<double> y
 
 #ifdef C_SEP_REP_2
 
+vector<double> CirclesSeparation::minimumWork(vector<double> x, vector<double> y, vector<double> r, vector<double> m) {
+    Problem pr(std::move(x), std::move(y), std::move(r), std::move(m));
 
+    auto cs = ProblemToCircles(pr);
+
+    Repulsion_v2<Score> g;
+    g.set_score(Score(1, 1));
+    auto ps = g.MinimumWork(pr);
+
+    PlaceCircles(cs, ps);
+
+    //BS_CloseUpAllRandom(cs);
+
+    return ToSolution(ExtractCenters(cs));
+}
 
 #endif
