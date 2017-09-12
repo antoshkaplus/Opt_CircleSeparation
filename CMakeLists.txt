@@ -92,6 +92,30 @@ add_executable(rep_v2_tester app/methods.cpp app/test_template.cpp)
 target_link_libraries(rep_v2_tester circlesep)
 target_compile_definitions(rep_v2_tester PUBLIC -DC_SEP_REP_2)
 
+add_executable(rep_v3 app/methods.cpp app/main_template.cpp)
+target_link_libraries(rep_v3 circlesep)
+target_compile_definitions(rep_v3 PUBLIC -DC_SEP_REP_3)
+
+add_executable(rep_v3_tester app/methods.cpp app/test_template.cpp)
+target_link_libraries(rep_v3_tester circlesep)
+target_compile_definitions(rep_v3_tester PUBLIC -DC_SEP_REP_3)
+
+add_executable(sa_v2 app/methods.cpp app/main_template.cpp)
+target_link_libraries(sa_v2 circlesep)
+target_compile_definitions(sa_v2 PUBLIC -DC_SEP_SA_2)
+
+add_executable(sa_v2_tester app/methods.cpp app/test_template.cpp)
+target_link_libraries(sa_v2_tester circlesep)
+target_compile_definitions(sa_v2_tester PUBLIC -DC_SEP_SA_2)
+
+add_executable(sa_v3 app/methods.cpp app/main_template.cpp)
+target_link_libraries(sa_v3 circlesep)
+target_compile_definitions(sa_v3 PUBLIC -DC_SEP_SA_3)
+
+add_executable(sa_v3_tester app/methods.cpp app/test_template.cpp)
+target_link_libraries(sa_v3_tester circlesep)
+target_compile_definitions(sa_v3_tester PUBLIC -DC_SEP_SA_3)
+
 
 # helpers
 

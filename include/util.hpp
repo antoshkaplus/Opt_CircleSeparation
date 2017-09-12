@@ -17,7 +17,8 @@ using ant::geometry::d2::f::Indent;
 
 
 extern default_random_engine RNG;
-constexpr double RADIUS_EPS = 1e-8;
+constexpr double RADIUS_EPS = 1e-9;
+constexpr double CIRCLE_INTERSECTION_EPS = 1e-14;
 
 
 struct Problem {
@@ -69,7 +70,7 @@ struct Circle : ant::geometry::d2::f::Circle {
     }
 
     bool Intersects(const Circle& p) const {
-        return center().Distance(p.center()) < radius + p.radius;
+        return center().Distance(p.center()) < radius + p.radius - CIRCLE_INTERSECTION_EPS;
     }
 
     double Work() const {
@@ -79,6 +80,11 @@ struct Circle : ant::geometry::d2::f::Circle {
     friend void SwapCenters(Circle& c_1, Circle& c_2);
 };
 
+inline double Work(const vector<Circle>& cs) {
+    return accumulate(cs.begin(), cs.end(), 0., [](double total, const Circle& c) {
+        return total + c.Work();
+    });
+}
 
 inline void SwapCenters(Circle& c_1, Circle& c_2) {
     auto p_1 = c_1.center();
@@ -102,11 +108,16 @@ inline void PlaceCircles(vector<Circle>& cs, const vector<Point>& ps) {
     }
 }
 
+inline void ExtractCenters(const vector<Circle>& cs, vector<Point>& ps) {
+    ps.resize(cs.size());
+    transform(cs.begin(), cs.end(), ps.begin(), [](auto& c) {
+      return c.center();
+    });
+}
+
 inline vector<Point> ExtractCenters(const vector<Circle>& cs) {
     vector<Point> res(cs.size());
-    transform(cs.begin(), cs.end(), res.begin(), [](auto& c) {
-        return c.center();
-    });
+    ExtractCenters(cs, res);
     return res;
 }
 
@@ -195,22 +206,6 @@ bool ValidArrangement(ForwardIt b, ForwardIt e) {
     return true;
 }
 
-//
-//template<class Score>
-//void CloseUp(Problem& problem, Score& score) {
-//    static vector<Index> order;
-//    problem.Order(order, score);
-//    bool did_close_up = true;
-//    while (did_close_up) {
-//        did_close_up = false;
-//        for (auto i : order) {
-//            if (BS_CloseUp(problem, i)) {
-//                did_close_up = true;
-//            }
-//        }
-//    }
-//}
-
 
 class Order {
 public:
@@ -294,7 +289,22 @@ public:
 
 };
 
+struct Solution {
+    vector<Point> ps;
+    double work;
 
+    Solution() {}
+    Solution(vector<Point> ps, double work) : ps(move(ps)), work(work) {}
+
+    void Init(const vector<Circle>& cs) {
+        ExtractCenters(cs, ps);
+        work = Work(cs);
+    }
+
+    bool is_better(const Solution& s) {
+        return work < s.work + CIRCLE_INTERSECTION_EPS;
+    }
+};
 
 
 //
