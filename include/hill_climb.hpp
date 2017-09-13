@@ -11,7 +11,7 @@ using namespace std;
 
 
 template<class Solver>
-class SA_v3 {
+class HillClimb {
 public:
     vector<Point> MinimumWork(Problem& pr) {
         auto start_millis = GetMillisCount();
@@ -31,9 +31,6 @@ public:
         Solution best_sol = cur_sol;
         Solution new_sol;
 
-        double temp = 1.;
-        double ddd = pow(10, -1./(max_iter_*2));
-
         for (cur_iter_ = 0; cur_iter_ < max_iter_; ++cur_iter_) {
             if (GetMillisCount() - start_millis > millis_) {
                 break;
@@ -47,21 +44,15 @@ public:
 
             new_sol.Init(cs);
 
-            temp *= ddd;
-
             double diff = new_sol.work - cur_sol.work;
-            double tt = exp(-diff/temp);
             if (diff <= 0) {
                 cur_sol = new_sol;
 
                 if (cur_sol.work < best_sol.work + CIRCLE_INTERSECTION_EPS) {
                     best_sol = cur_sol;
 
-                    cerr.precision(11);
                     //cerr << "iter: " << cur_iter_ << " best: " << best_sol.work << endl;
                 }
-            } else if (tt > rand()) {
-                cur_sol = new_sol;
             } else {
                 PlaceCircles(cs, cur_sol.ps);
                 field.Clear();

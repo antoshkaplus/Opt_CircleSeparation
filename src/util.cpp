@@ -11,7 +11,7 @@
 
 using namespace std;
 
-default_random_engine RNG;
+thread_local default_random_engine RNG;
 
 
 // close up all random

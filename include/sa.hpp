@@ -10,11 +10,11 @@ using namespace std;
 
 
 /// While has any intersections try
-/// to resolve them by moving random circle on defined 
+/// to resolve them by moving random circle on defined
 /// vector away from overlapping
 
 /// Score has one call operator that returns weight (double)
-/// of the circle, how much he resistant to moving anywhere 
+/// of the circle, how much he resistant to moving anywhere
 
 
 template<class Score>

@@ -116,6 +116,9 @@ add_executable(sa_v3_tester app/methods.cpp app/test_template.cpp)
 target_link_libraries(sa_v3_tester circlesep)
 target_compile_definitions(sa_v3_tester PUBLIC -DC_SEP_SA_3)
 
+add_executable(hill_climb app/methods.cpp app/main_template.cpp)
+target_link_libraries(hill_climb circlesep)
+target_compile_definitions(hill_climb PUBLIC -DC_SEP_HILL_CLIMB)
 
 # helpers
 
@@ -127,3 +130,5 @@ target_link_libraries(tester
         ${ANT_LIBRARY}
         circlesep)
 
+add_executable(stats app/stats.cpp)
+target_link_libraries(stats circlesep ant tbb)

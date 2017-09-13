@@ -16,7 +16,7 @@ using ant::geometry::d2::f::Point;
 using ant::geometry::d2::f::Indent;
 
 
-extern default_random_engine RNG;
+extern thread_local default_random_engine RNG;
 constexpr double RADIUS_EPS = 1e-9;
 constexpr double CIRCLE_INTERSECTION_EPS = 1e-14;
 

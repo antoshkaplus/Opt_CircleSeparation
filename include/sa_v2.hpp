@@ -27,11 +27,9 @@ public:
         Solution best_sol = cur_sol;
         Solution new_sol;
 
-        Count iter_count = 3000;
-
         double temp = 1.;
-        double ddd = pow(10, -1./(iter_count*2));
-        for (Index iter = 0; iter < iter_count; ++iter) {
+        double ddd = pow(10, -1./(max_iter_*2));
+        for (cur_iter_ = 0; cur_iter_ < max_iter_; ++cur_iter_) {
 
             Alter(field, cs);
             solver_.Solve(field, cs);
@@ -49,7 +47,7 @@ public:
                     best_sol = cur_sol;
 
                     cerr.precision(11);
-                    cerr << "iter: " << iter << " best: " << best_sol.work << endl;
+                    cerr << "iter: " << cur_iter_ << " best: " << best_sol.work << endl;
                 }
             } else if (tt > rand()) {
                 cur_sol = new_sol;
@@ -66,6 +64,18 @@ public:
         solver_ = solver;
     }
 
+    void set_millis(uint32_t millis) {
+        millis_ = millis;
+    }
+
+    void set_max_iter(Index iter) {
+        max_iter_ = iter;
+    }
+
+    Count get_iter_count() const {
+        return cur_iter_;
+    }
+
 private:
 
     void Alter(Field& field, vector<Circle>& cs) {
@@ -75,4 +85,7 @@ private:
 
     uniform_int_distribution<> sz_distr_;
     Solver solver_;
+    uint32_t millis_ = numeric_limits<uint32_t>::max();
+    Index cur_iter_;
+    Index max_iter_ = 3000;
 };

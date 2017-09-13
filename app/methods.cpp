@@ -10,6 +10,7 @@
 #include "reorder.hpp"
 #include "sa_v2.hpp"
 #include "sa_v3.hpp"
+#include "hill_climb.hpp"
 
 
 #ifdef C_SEP_GREEDY
@@ -169,6 +170,32 @@ vector<double> CirclesSeparation::minimumWork(vector<double> x, vector<double> y
     Rep_v3_Solver_New_2<Score> solver;
     solver.set_score(Score(1, 1));
     sa.set_solver(solver);
+    sa.set_millis(10000);
+
+    auto ps = sa.MinimumWork(pr);
+    cerr << sa.get_iter_count() << endl;
+
+    PlaceCircles(cs, ps);
+    BS_CloseUpAllRandom(cs);
+
+    return ToSolution(ExtractCenters(cs));
+}
+
+#endif
+
+#ifdef C_SEP_HILL_CLIMB
+
+vector<double> CirclesSeparation::minimumWork(vector<double> x, vector<double> y, vector<double> r, vector<double> m) {
+    Problem pr(std::move(x), std::move(y), std::move(r), std::move(m));
+
+    auto cs = ProblemToCircles(pr);
+
+    HillClimb<Rep_v3_Solver_New_2<Score>> sa;
+    Rep_v3_Solver_New_2<Score> solver;
+    solver.set_score(Score(1, 1));
+    sa.set_solver(solver);
+    sa.set_max_iter(numeric_limits<Count>::max());
+    sa.set_millis(10000);
 
     auto ps = sa.MinimumWork(pr);
 
