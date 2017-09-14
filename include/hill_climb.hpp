@@ -13,7 +13,7 @@ using namespace std;
 template<class Solver>
 class HillClimb {
 public:
-    vector<Point> MinimumWork(Problem& pr) {
+    vector<Point> MinimumWork(const Problem& pr) {
         auto start_millis = GetMillisCount();
 
         sz_distr_ = uniform_int_distribution<>(0, pr.size()-1);

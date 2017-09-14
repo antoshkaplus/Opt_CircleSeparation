@@ -65,6 +65,14 @@ target_compile_definitions(greedy_tester PUBLIC -DC_SEP_GREEDY)
 add_executable(greedy_v2 app/methods.cpp app/main_template.cpp)
 target_compile_definitions(greedy_v2 PUBLIC -DC_SEP_GREEDY_2)
 
+add_executable(greedy_v3 app/methods.cpp app/main_template.cpp)
+target_link_libraries(greedy_v3 circlesep)
+target_compile_definitions(greedy_v3 PUBLIC -DC_SEP_GREEDY_3)
+
+add_executable(greedy_v3_tester app/methods.cpp app/test_template.cpp)
+target_link_libraries(greedy_v3_tester circlesep)
+target_compile_definitions(greedy_v3_tester PUBLIC -DC_SEP_GREEDY_3)
+
 add_executable(reorder app/methods.cpp app/main_template.cpp)
 target_compile_definitions(reorder PUBLIC -DC_SEP_REORDER)
 

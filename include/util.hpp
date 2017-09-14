@@ -268,7 +268,8 @@ class ProblemGroup {
 public:
     static Index getIndex(Count sz, double max_r) {
         Index k_1 = (sz - 50) / 50;
-        Index k_2 = max<Index>(max_r * sz - 1, 0);
+        // situation of less than 0 should never happen
+        Index k_2 = max<Index>(pow(max_r, 2) * sz - 1, 0);
         return k_1 * kMax_k_2 + k_2;
     }
 
@@ -278,7 +279,7 @@ public:
 
         uniform_int_distribution<> sz_distr(0, 50);
         Count sz = 50 + 50 * k_1 + sz_distr(RNG);
-        double max_r = (k_2 + 1 + uniform_real_distribution<>()(RNG)) / sz;
+        double max_r = sqrt((k_2 + 1 + uniform_real_distribution<>()(RNG)) / sz);
 
         return GenerateProblem(sz, max_r);
     }
