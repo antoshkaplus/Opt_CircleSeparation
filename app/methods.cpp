@@ -33,11 +33,18 @@ vector<double> CirclesSeparation::minimumWork(vector<double> x, vector<double> y
 vector<double> CirclesSeparation::minimumWork(vector<double> x, vector<double> y, vector<double> r, vector<double> m) {
     Problem pr(std::move(x), std::move(y), std::move(r), std::move(m));
 
-    Greedy_v2<Score> g;
+    Greedy_v2_2<Score> g;
     g.set_score(Score(1, 0));
-    auto cs = g.MinimumWork(pr);
+    g.set_millis(10000);
+    g.set_max_iter(10000);
+    auto ps = g.MinimumWork(pr);
 
-    return ToSolution(cs);
+    auto cs = ProblemToCircles(pr);
+    PlaceCircles(cs, ps);
+    //IncreaseRadius(cs, RADIUS_EPS);
+    BS_CloseUpAllRandom(cs);
+
+    return ToSolution(ExtractCenters(cs));
 }
 
 #endif
