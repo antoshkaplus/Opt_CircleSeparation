@@ -4,7 +4,7 @@
 
 #include "util.hpp"
 #include "close_up.hpp"
-#include "repulsion_v2.hpp"
+#include "rep/repulsion_v2.hpp"
 
 
 using namespace std;

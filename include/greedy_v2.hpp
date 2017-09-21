@@ -131,7 +131,7 @@ private:
         ResetCenters(cs);
         field.Clear();
         SpiralPlacement placement(field);
-        placement.PlaceAll(cs, order);
+        placement.PlaceAll_3(cs, order);
     }
 
     Score score_;

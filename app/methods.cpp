@@ -4,9 +4,9 @@
 #include "greedy_v2.hpp"
 #include "greedy_v3.hpp"
 #include "score.hpp"
-#include "repulsion_v1.hpp"
-#include "repulsion_v2.hpp"
-#include "rep_v3.hpp"
+#include "rep/repulsion_v1.hpp"
+#include "rep/repulsion_v2.hpp"
+#include "rep/rep_v3.hpp"
 #include "close_up.hpp"
 #include "reorder.hpp"
 #include "sa_v2.hpp"
@@ -34,7 +34,7 @@ vector<double> CirclesSeparation::minimumWork(vector<double> x, vector<double> y
     Problem pr(std::move(x), std::move(y), std::move(r), std::move(m));
 
     Greedy_v2_2<Score> g;
-    g.set_score(Score(1, 0));
+    g.set_score(Score(1, 1));
     g.set_millis(10000);
     g.set_max_iter(10000);
     auto ps = g.MinimumWork(pr);
@@ -128,7 +128,7 @@ vector<double> CirclesSeparation::minimumWork(vector<double> x, vector<double> y
 
     auto cs = ProblemToCircles(pr);
 
-    Repulsion_v2<Score> g;
+    rep::Repulsion_v2_2<Score> g;
     g.set_score(Score(1, 1));
     auto ps = g.MinimumWork(pr);
 
@@ -148,7 +148,7 @@ vector<double> CirclesSeparation::minimumWork(vector<double> x, vector<double> y
 
     auto cs = ProblemToCircles(pr);
 
-    Rep_v3<Score> g;
+    rep::Rep_v3_2<Score> g;
     g.set_score(Score(1, 1));
     auto ps = g.MinimumWork(pr);
 

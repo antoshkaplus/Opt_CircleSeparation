@@ -1,5 +1,6 @@
 #pragma once
 
+#include <rep/strat.hpp>
 #include "field.hpp"
 
 
@@ -10,12 +11,20 @@ inline bool CloseUp(Field& field, Circle& c) {
         p_a = c.center(),
         p_b = c.origin;
 
+    rep::IntersectionResolver inter_resolver;
     while (p_a.Distance(p_b) > 1.e-5) {
         c.set_center((p_a + p_b)/2.);
-        if (field.HasIntersection(&c)) {
-            p_b = c.center();
-        } else {
+
+        auto res = inter_resolver.Resolve(field, c);
+        if (res) {
+            if (c.center() != inter_resolver.center() && SqrDistance(c.center(), c.origin) < inter_resolver.sqr_distance()) {
+                p_b = c.center();
+                continue;
+            }
+            c.set_center(inter_resolver.center());
             p_a = c.center();
+        } else {
+            p_b = c.center();
         }
     }
     c.set_center(p_a);

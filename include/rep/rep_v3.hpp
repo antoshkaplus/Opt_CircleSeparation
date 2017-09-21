@@ -2,7 +2,10 @@
 
 #include "util.hpp"
 #include "field.hpp"
+#include "strat.hpp"
 
+
+namespace rep {
 
 template<class Score>
 class Rep_v3 {
@@ -17,28 +20,25 @@ public:
         vector<Index> order(cs.size());
         iota(order.begin(), order.end(), 0);
 
+        TwoStrat<Score> strat(score_);
+        f::Indent shift, shift_2;
         while (has_intersections) {
             has_intersections = false;
             shuffle(order.begin(), order.end(), RNG);
             for (auto i : order) {
                 auto& c = cs[i];
-                auto ins = field.Intersections(&cs[i]);
-                if (ins.empty()) continue;
+                auto ins = field.FirstIntersection(&cs[i]);
+                if (!ins) continue;
                 has_intersections = true;
 
-                /// finding most significabt intersection
-                auto& c_2 = *(ins[rand()%ins.size()]); // MaxElement(ins.begin(), ins.end(), score_ptr);
-                auto t = c.center() - c_2.center();
-                auto d = t.distance();
-                auto diff = c.radius + c_2.radius - d;
-                auto ss = score_(c) + score_(c_2);
+                // could look for all and pick random
+                auto &c_2 = *ins.value();
 
-                auto shift = t * diff * score_(c) / (d * ss);
-                auto shift_2 = - t * diff * score_(c_2) / (d * ss);
+                tie(shift, shift_2) = strat(c, c_2);
 
                 // increases time by too much
-                field.Shift(&c, 0.1*shift);
-                field.Shift(&c_2, 0.1*shift_2);
+                field.Shift(&c, 0.1 * shift);
+                field.Shift(&c_2, 0.1 * shift_2);
             }
         }
 
@@ -57,9 +57,59 @@ private:
 
 
 template<class Score>
+class Rep_v3_2 {
+public:
+    vector<Point> MinimumWork(Problem &problem) {
+        vector<Circle> cs = ProblemToCircles(problem);
+        for_each(cs.begin(), cs.end(), [](auto &c) { c.radius += RADIUS_EPS; });
+
+        auto field = BuildField(cs);
+        bool has_intersections = true;
+
+        Order order;
+        TopLeftComparator comp;
+        auto ordering = order.OrderByCompare(cs, [&](auto &c_1, auto &c_2) {
+            return comp(c_1.origin, c_2.origin);
+        });
+
+        TwoStrat<Score> strat(score_);
+        f::Indent shift, shift_2;
+        while (has_intersections) {
+            has_intersections = false;
+            for (auto i : ordering) {
+                auto &c = cs[i];
+                auto ins = field.FirstIntersection(&cs[i]);
+                if (!ins) continue;
+                has_intersections = true;
+
+                // could look for all and pick random
+                auto &c_2 = *ins.value();
+
+                tie(shift, shift_2) = strat(c, c_2);
+
+                // increases time by too much
+                field.Shift(&c, shift);
+                field.Shift(&c_2, shift_2);
+            }
+        }
+
+        assert(ValidArrangement(cs.begin(), cs.end()));
+
+        return ExtractCenters(cs);
+    }
+
+    void set_score(Score s) {
+        score_ = move(s);
+    }
+
+private:
+    Score score_;
+};
+
+template<class Score>
 class Rep_v3_Solver {
 public:
-    void Solve(Field& field, vector<Circle>& cs)  {
+    void Solve(Field& field, vector<Circle>& cs) {
         bool has_intersections = true;
 
         vector<Index> order(cs.size());
@@ -75,14 +125,14 @@ public:
                 has_intersections = true;
 
                 /// finding most significabt intersection
-                auto& c_2 = *(ins[rand()%ins.size()]); // MaxElement(ins.begin(), ins.end(), score_ptr);
+                auto& c_2 = *(ins[rand() % ins.size()]); // MaxElement(ins.begin(), ins.end(), score_ptr);
                 auto t = c.center() - c_2.center();
                 auto d = t.distance();
                 auto diff = c.radius + c_2.radius - d;
                 auto ss = score_(c) + score_(c_2);
 
                 auto shift = t * diff * score_(c) / (d * ss);
-                auto shift_2 = - t * diff * score_(c_2) / (d * ss);
+                auto shift_2 = -t * diff * score_(c_2) / (d * ss);
 
                 field.Shift(&c, shift);
                 field.Shift(&c_2, shift_2);
@@ -99,7 +149,6 @@ public:
 private:
     Score score_;
 };
-
 
 
 template<class Score>
@@ -173,7 +222,7 @@ public:
         }
 
         while (!overlaps.empty()) {
-            auto p = rand()%overlaps.size();
+            auto p = rand() % overlaps.size();
             auto i = overlaps[p];
             SwapBackPop(overlaps, p);
 
@@ -225,7 +274,7 @@ private:
 template<class Score>
 class Rep_v3_Solver_Fixed {
 public:
-    void Solve(Field& field, vector<Circle>& cs, vector<Index>& overlaps) {
+    void Solve(Field &field, vector<Circle> &cs, vector<Index> &overlaps) {
 
         if (overlaps.empty()) {
             overlaps.resize(cs.size());
@@ -241,14 +290,12 @@ public:
             });
         }
 
-
-
         while (!overlaps.empty()) {
             fill(fixed.begin(), fixed.end(), false);
             while (true) {
                 break;
 
-                auto p = rand()%overlaps.size();
+                auto p = rand() % overlaps.size();
                 auto i = overlaps[p];
                 SwapBackPop(overlaps, p);
 
@@ -297,4 +344,4 @@ private:
     Score score_;
 };
 
-
+}

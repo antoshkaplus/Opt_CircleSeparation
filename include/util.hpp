@@ -65,6 +65,10 @@ struct Circle : ant::geometry::d2::f::Circle {
         ant::geometry::d2::f::Circle::center = p;
     }
 
+    void move_center(const f::Indent& i) {
+        ant::geometry::d2::f::Circle::center += i;
+    }
+
     void reset_center() {
         ant::geometry::d2::f::Circle::center = origin;
     }
@@ -220,6 +224,24 @@ public:
 
         sort(order_.begin(), order_.end(), [&](auto i_1, auto i_2) {
             return values_[i_1] > values_[i_2];
+        });
+
+        return order_;
+    }
+
+    template<class T, class Score>
+    const vector<Index>& OrderByScore(const vector<T>& items, const Score& score) {
+        return DoOrder(items, score);
+    }
+
+    template<class T, class Compare>
+    const vector<Index>& OrderByCompare(const vector<T>& items, Compare compare) {
+        auto sz = items.size();
+        order_.resize(sz);
+        iota(order_.begin(), order_.end(), 0);
+
+        sort(order_.begin(), order_.end(), [&](auto i_1, auto i_2) {
+            return compare(items[i_1], items[i_2]);
         });
 
         return order_;

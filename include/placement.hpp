@@ -2,6 +2,7 @@
 
 #include "util.hpp"
 #include "close_up.hpp"
+#include "rep/strat.hpp"
 
 
 // not responsible for Field state
@@ -15,11 +16,11 @@ public:
     SpiralPlacement(Field& field) : field_(&field) {}
 
     // tells you if replace is successful
-    bool Place(Circle* c, Count max_count = numeric_limits<Count>::max()) {
+    bool Place(Circle* c) {
         double angle = 0;
         double distance = 0;
         Index index = 0;
-        while (field_->HasIntersection(c) && index < max_count) {
+        while (field_->HasIntersection(c)) {
             // should be something similar to spiral
             distance = kCompactedness * sqrt(index);
             angle = index * kGoldenAngle;
@@ -27,13 +28,96 @@ public:
                                 distance*sin(angle) + c->center().y));
             ++index;
         }
-        return index != max_count;
+        return true;
+    }
+
+    bool Place_2(Circle* c) {
+        double angle = 0;
+        double distance = 0;
+        Index index = 0;
+
+        rep::OneStrat strat;
+        for (;;) {
+            // should be something similar to spiral
+            distance = kCompactedness * sqrt(index);
+            angle = index * kGoldenAngle;
+            c->set_center(Point(distance*cos(angle) + c->center().x,
+                                distance*sin(angle) + c->center().y));
+
+            auto ins = field_->FirstIntersection(c);
+            if (!ins) {
+                return true;
+            }
+            auto shift = strat(*c, *ins.value());
+
+            auto old = c->center();
+            c->set_center(c->center() + shift);
+            auto b = field_->HasIntersection(c);
+            if (!b) {
+                return true;
+            }
+            c->set_center(old);
+
+            ++index;
+        }
+    }
+
+    bool Place_3(Circle* c) {
+        f::Point best_center;
+        auto best_sqr_distance = numeric_limits<double>::max();
+
+        double angle = 0;
+        double distance = 0;
+        Index index = 0;
+
+        rep::IntersectionResolver inter_resolver;
+        for (;;) {
+            // should be something similar to spiral
+            distance = kCompactedness * sqrt(index);
+            angle = index * kGoldenAngle;
+            c->set_center(Point(distance*cos(angle) + c->center().x,
+                                distance*sin(angle) + c->center().y));
+
+            auto res = inter_resolver.Resolve(*field_, *c);
+            if (res) {
+                if (inter_resolver.center() == c->center()) {
+                    break;
+                }
+                if (best_sqr_distance > inter_resolver.sqr_distance()) {
+                    best_center = inter_resolver.center();
+                    best_sqr_distance = inter_resolver.sqr_distance();
+                }
+            }
+            ++index;
+        }
+
+        if (SqrDistance(c->center(), c->origin) > best_sqr_distance) {
+            c->set_center(best_center);
+        }
+
+        return true;
     }
 
     void PlaceAll(vector<Circle>& cs, const vector<Index>& order) {
         for (auto i : order) {
             auto c = cs.data() + i;
             Place(c);
+            field_->Add(c);
+        }
+    }
+
+    void PlaceAll_2(vector<Circle>& cs, const vector<Index>& order) {
+        for (auto i : order) {
+            auto c = cs.data() + i;
+            Place_2(c);
+            field_->Add(c);
+        }
+    }
+
+    void PlaceAll_3(vector<Circle>& cs, const vector<Index>& order) {
+        for (auto i : order) {
+            auto c = cs.data() + i;
+            Place_3(c);
             field_->Add(c);
         }
     }
@@ -65,24 +149,25 @@ public:
                 auto diff_theory = c_1.Work() + c_2.Work();
                 if (SimilarSize(c_1, c_2, 0.8) && work - diff_before + diff_theory + 1e-6 < work) {
 
-                    bool b = sp.Place(&cs[i], 1000);
-                    if (!b) {
-                        stack.Pop();
-                        field.Add(&cs[i]);
-                        field.Add(&cs[j]);
-                        continue;
-                    }
-                    CloseUp(field, cs[i]);
-                    field.Add(&cs[i]);
+//                    TODO no support
+//                    bool b = sp.Place(&cs[i], 1000);
+//                    if (!b) {
+//                        stack.Pop();
+//                        field.Add(&cs[i]);
+//                        field.Add(&cs[j]);
+//                        continue;
+//                    }
+//                    CloseUp(field, cs[i]);
+//                    field.Add(&cs[i]);
 
-                    b = sp.Place(&cs[j], 1000);
-                    if (!b) {
-                        field.Remove(&cs[i]);
-                        stack.Pop();
-                        field.Add(&cs[i]);
-                        field.Add(&cs[j]);
-                        continue;
-                    }
+//                    b = sp.Place(&cs[j], 1000);
+//                    if (!b) {
+//                        field.Remove(&cs[i]);
+//                        stack.Pop();
+//                        field.Add(&cs[i]);
+//                        field.Add(&cs[j]);
+//                        continue;
+//                    }
                     CloseUp(field, cs[j]);
                     field.Add(&cs[j]);
 
