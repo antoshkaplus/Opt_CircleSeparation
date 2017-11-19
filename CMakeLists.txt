@@ -129,6 +129,10 @@ add_executable(hill_climb app/methods.cpp app/main_template.cpp)
 target_link_libraries(hill_climb circlesep)
 target_compile_definitions(hill_climb PUBLIC -DC_SEP_HILL_CLIMB)
 
+add_executable(vlad_d app/methods.cpp app/main_template.cpp)
+target_link_libraries(vlad_d circlesep)
+target_compile_definitions(vlad_d PUBLIC -DC_SEP_VLAD_D)
+
 # helpers
 
 add_executable(opt app/opt.cpp)

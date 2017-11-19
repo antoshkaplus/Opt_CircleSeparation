@@ -4,6 +4,7 @@
 #include <iostream>
 
 #include "ant/geometry/d2.hpp"
+#include "ant/geometry/polar.hpp"
 #include "ant/grid/grid.hpp"
 
 using namespace std;
@@ -159,6 +160,13 @@ inline bool SimilarSize(const Circle& c_1, const Circle& c_2, double ratio) {
 
 
 void IncreaseRadius(vector<::Circle>& cs, double eps);
+
+inline double MaxRadius(vector<::Circle>& cs) {
+    return max_element(cs.begin(), cs.end(), [](::Circle& c_0, ::Circle& c_1) {
+        return c_0.radius < c_1.radius;
+    })->radius;
+}
+
 void ReadCircles(istream& in, vector<::Circle>& cs);
 void ZoomOut(vector<::Circle>& cs);
 

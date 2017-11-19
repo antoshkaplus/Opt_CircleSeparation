@@ -33,13 +33,14 @@ vector<double> CirclesSeparation::minimumWork(vector<double> x, vector<double> y
 vector<double> CirclesSeparation::minimumWork(vector<double> x, vector<double> y, vector<double> r, vector<double> m) {
     Problem pr(std::move(x), std::move(y), std::move(r), std::move(m));
 
-    Greedy_v2_2<Score> g;
-    g.set_score(Score(1, 1));
+    auto cs = ProblemToCircles(pr);
+
+    Greedy_v2_2<Vlad_D_Score> g;
+    g.set_score(Vlad_D_Score(MaxRadius(cs)));
     g.set_millis(10000);
     g.set_max_iter(10000);
     auto ps = g.MinimumWork(pr);
 
-    auto cs = ProblemToCircles(pr);
     PlaceCircles(cs, ps);
     //IncreaseRadius(cs, RADIUS_EPS);
     BS_CloseUpAllRandom(cs);
@@ -224,6 +225,25 @@ vector<double> CirclesSeparation::minimumWork(vector<double> x, vector<double> y
     auto ps = sa.MinimumWork(pr);
 
     PlaceCircles(cs, ps);
+    BS_CloseUpAllRandom(cs);
+
+    return ToSolution(ExtractCenters(cs));
+}
+
+#endif
+
+#ifdef C_SEP_VLAD_D
+
+vector<double> CirclesSeparation::minimumWork(vector<double> x, vector<double> y, vector<double> r, vector<double> m) {
+    Problem pr(std::move(x), std::move(y), std::move(r), std::move(m));
+
+    auto cs = ProblemToCircles(pr);
+
+    TangentPlacement placement;
+    Order ordering;
+    ordering.OrderByScore(cs, Vlad_D_Score(MaxRadius(cs)));
+    placement.PlaceAll(cs, ordering.get());
+
     BS_CloseUpAllRandom(cs);
 
     return ToSolution(ExtractCenters(cs));

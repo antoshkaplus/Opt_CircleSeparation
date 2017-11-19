@@ -51,3 +51,12 @@ inline Field BuildField(vector<Circle>& cs) {
     field.Add(cs.begin(), cs.end());
     return field;
 }
+
+inline Field BuildFieldFor(vector<Circle>& cs) {
+    Field field;
+    auto max_r = max_element(cs.begin(), cs.end(), [](auto& c_0, auto& c_1) {
+        return c_0.radius < c_1.radius;
+    })->radius;
+    field.Reset({-3, -3}, {4, 4}, {2*max_r, 2*max_r});
+    return field;
+}

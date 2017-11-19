@@ -1,0 +1,329 @@
+**************************************************
+vlad_D
+
+I don't have a great approach. I just sort circles by m[i] * min(largest_R / r[i], 2.0) then I place them 1 by 1.
+
+Placing:
+- if it's possible to place at x[i], y[i] place there
+- otherwise, look at already placed circles and try to place tangent to one of the already placed circle, keep the best and use it.
+
+Now, when I try to place tangent to a circle I try different points with a step of largest_r * 0.02.
+
+
+This gave me: 853879.07 but it was simple to implement.
+
+I also tried, when placing a new circle place it tangent to 2 existing circles or tangent to 1 existing circle (keep the closest one). But it did worse.
+
+So, I was wondering if you guys implemented a brute force approach to try different orderings of placing the circles.
+
+My Example results(not that great):
+0) 10.735300222325122
+1) 2.546551103616857
+2) 11.932169145913829
+3) 15.376061095510833
+4) 3.919390685449052
+5) 44.34142745907761
+6) 8.344246022798208
+7) 13.156488574528526
+8) 28.697320431475593
+9) 2.334204192864087
+
+What did you guys get for examples? What about seed 6? I expect you got 36. Do you have pic of your seed 6?
+
+Thanks.
+
+
+**************************************************
+ainu7
+
+0) Score: 9.120012747689668 Run Time: 9902 ms
+1) Score: 2.01592057122776 Run Time: 9902 ms
+2) Score: 9.017862352013779 Run Time: 9901 ms
+3) Score: 12.849787934352145 Run Time: 9903 ms
+4) Score: 3.1596556605729846 Run Time: 9901 ms
+5) Score: 40.3706636383075 Run Time: 9903 ms
+6) Score: 7.496552182433127 Run Time: 9900 ms
+7) Score: 11.626996478039311 Run Time: 9901 ms
+8) Score: 25.77671270140845 Run Time: 9901 ms
+9) Score: 1.9845133068999108 Run Time: 9902 ms
+
+I used a mix of simulated annealing and local search.
+
+For 9.9s, for each trial:
+(1) For 40% of cases, switch places of circle A and circle B. (Let's assume B is larger than A)
+score = m[a] * dist(A->a) + m[b] * dist(B->b) - m[a] * dist(A->b) - m[b] * dist(B->a) + m[A] * (r[B] - r[A]) (large number is good, details omitted)
+Do simulated annealing using this score.
+
+(2) For remaining 60% of cases, pick a circle A and move it a little. Moving distance is reciprocal to mass.
+
+25% of these cases are 'hyper mode'. In this mode moving distance is multiplied by 6. Also, if the move makes score worse, don't move.
+Remaining 75% is 'normal mode'. Move randomly.
+For 100% of hyper mode and 40% of normal mode, if vector inner mult of moving direction and desired direction is less then 0, just reverse moving direction.
+
+--
+
+I spent tremendous time to optimize speed and parameters. As a result I run 47M~60M iterations for each case(but it was impossible to remove sqrt function) and I also think parameters are near their best position.
+
+I discovered method (1) last week and it gave +40000 points, so I decided to hide 30000 points thereafter.
+
+What I didn't try was physical simulation. I thought it should require at least O(n^2) iterations, so didn't bother to try. I don't know what's Milanin's method, but I think his method will far surpass my method. :)
+
+
+**************************************************
+murrayr
+
+I place the circles in order in "the closest to desired position", then randomly pick one of the badly scoring circles and move it forward in the order and try again, until timeout.
+
+The initial order is the best scoring of by mass, by mass - radius * various constants [0.25 - 4], by mass / radius.
+
+I need a fast method to find "the closest to desired position" for each circle so, as the circles are placed, I maintain a Delaunay Triangulation of the circle origins (Here's an example for seed 1). Circles are placed either at their target, at the closest point on the edge of the circle the target is in, or touching two of the circles connected by the Delaunay triangulation. To speed up further, the lines in the triangulation track the smallest circle they can't support, and circle hit testing is speeded up with a coarse lookup grid. This can test an average of 750 different placement orders per test case on my laptop.
+
+Example scores:
+0) 10.675224699854525
+1) 2.211154882666937
+2) 11.084050375168653
+3) 15.46523400072363
+4) 3.515548148160953
+5) 45.7243121067743
+6) 7.890486175536647
+7) 12.34389898018933
+8) 29.128212765861633
+9) 2.1627343462661255
+
+I tried adding a gravity collapse sim, which hardly ever did anything. I guess the circles were already locked too tightly. I also tried tracking and testing all other lines that connected circles through free space, but that had no extra benefit.
+
+
+**************************************************
+JacoCronje
+
+-I sorted the circles by m[i] / (R[i]*R[i]), where R[i] is the radius of the circle if radius > median radius, otherwise R[i] = median radius.
+-Then I placed them one by one at the "best" position by scanning in a 180 deg. arc around each target point.
+-Next the algorithm performs a min cost max flow on similar size circles.
+-Perform physics based simulation where a force is applied to each circle in the target direction. Applied only for 10-50 iterations.
+-Fix the collisions by performing collision response on collisions.
+-Randomly swap 2 similar size circles, or move a randomish circle towards its target. Swapping very similar to ainu7 metric, but without the last term.
+-Repeat the physics simulation
+-mutate a bit and repeat
+
+
+Example scores:
+9.24054
+2.08903
+9.22934
+12.6404
+3.20894
+40.9129
+7.36846
+11.6027
+26.6449
+2.00894
+
+
+**************************************************
+blackmath
+
+I start by generating a few random starting arrangement on which I later do a physical simulation. A starting arrangement is generated by placing circles one by one in order of their priority such that they don't intersect. The priority is chosen using a complicated formula making sure that heavier circles are placed first and large circles are placed last. Moreover, I don't place a circle at the starting position minimizing the penalty for this circle but I also consider the distance to the center of the 0-1-square. The aim of this phase is not to construct good scoring solutions but to have a solution that we take as a starting point for the physical simulation.
+
+The physical simulation is done by alternating two steps:
+1a swap circles of similar radii and increase the score by this swap
+1b move circles in the direction of their original position, heavier circles are moved faster
+(this generates a position that is that is not a valid solution as it overlaps)
+2 repair this invalid solution by iteratively moving circles away from the circle they overlap with. For a fixed circle and each overlapping circle we calculate a direction vector in which to move these two circles. This vector is proportional to the length of their overlap and a factor h. The direction in which a circle is moved is then the sum of these vectors.
+If in such a step the total squared overlap (energy of the physical system) would be increased, h is decreased.
+
+This process is repeated for several starting positions. As a final step the best solution obtained is repaired in a rather stupid way by moving around circles one by one and decreasing the score.
+
+Example scores for the final submission:
+
+0) 9.43041268485833
+1) 2.097164218285335
+2) 9.236476862550473
+3) 12.292901522493885
+4) 3.123938527313803
+5) 40.61225325940782
+6) 7.443487634026825
+7) 11.474405514674993
+8) 25.957235459462254
+9) 2.004992725976793
+
+All in all, it was a great problem and it seems like one could get even better solutions if one combined the ideas of all participants! As usual, the two weeks we had to solve the problem were too long and too short at the same time:).
+
+
+**************************************************
+Vexorian
+
+Main approach:
+- Sort circles by (some logic).
+- For each circle, try all angles that are a multiple of 12 (Using 360 degrees). Find the angle that yields the best distance that doesn't overlap with other already-placed circles. Then try the 22 angles that are nearby this optimal multiple of 12.
+
+Details:
+- I try three orderings for the circles in the first three iterations and remember the best.
+-- m[i] * sqrt(m[i]) * (1.5 - sqrt(dx*dx + dy*dy) ) * (m[i] / ( sum of m[i]s of overlapping circles));
+-- (Previous formula) / r[i]
+-- good old plain m[i]
+
+With the best of the three orderings I run a simple Hill Climbing. Swap two circles in the ordering, run and if it succeeds, keep the new order.
+
+To get the best position I needed plenty of geometry optimizations, basically it is amortized O(n) per circle. N=50 can reach 6953 iterations, (too bad most of them are wasted because I reach a local minimum with around 1500 iterations). For N=250, I have ~484 iterations and for N=500, 140~ iterations.
+
+I forgot to get example results for my latest two submissions. Here is the best one I found:
+
+0) 10.900192579178476
+1) 2.3446874747567223
+2) 12.361248850444047
+3) 15.845480739133398
+4) 3.74082569843475
+5) 47.19399157282644
+6) 8.295640499961547
+7) 13.322852758827
+8) 30.01982267017501
+9) 2.169410729752234
+
+
+**************************************************
+zaq1xsw2tktk
+
+My approach is very similar to vlad_D.
+
+Placing order:
+1. Total circles area > 1.8, sort circles by m[i] / (r[i] + average of radius)
+Let k be the smallest number satisfy total area of the first k circles is greater than 1.
+Sort the first k circles by the distance between their centers and point(0.5, 0.5).
+2. Total circles area <= 1.8, sort circles by m[i].
+
+Placing:
+- if it's possible to place at x[i], y[i] place there
+- place it tangent to 2 existing circles or tangent to 1 existing circle (keep the closest one). Remove the new circle and the tangent circles(keep other circles on the board), change their order, check whether this improves score.
+
+Example result:
+0) 9.343426726578059
+1) 2.1101101389049024
+2) 9.698986323399945
+3) 13.544550258493306
+4) 3.231182461879404
+5) 40.61366297723801
+6) 7.5087235284067955
+7) 11.562695316149599
+8) 26.28751187669101
+9) 1.999275882270547
+
+
+**************************************************
+Milanin
+
+0) 8.994385535614441
+1) 2.076966260115919
+2) 8.930881877174073
+3) 12.407427496955517
+4) 3.1626556234753025
+5) 39.741906448989056
+6) 7.388810391717014
+7) 11.452531301470533
+8) 25.71246349900386
+9) 2.0048946583692375
+
+My solution is:
+
+Find some pseudo valid position by 400 iterations of repulsion.
+
+While (time < 9)
+
+Find a perfect matching of minimal weight between circles and points they are situated. Assigning cost of circle i to point j is:
+
+cost[i][j] = mass[i] * distance(point[j], startposition[i]) / pow(radius[i], 2)
+
+2000 iterations of repulsion.
+
+Update the best answer.
+
+End while
+
+After all find for each circle the best position it can take touching two other circles.
+
+Repulsion means:
+
+Suppose circle i takes a position p[i]. And d[i] is a vector at which the circle i will change its position after iteration of repulsion (p[i] += d[i], at the end). We are going to calculate d[i] for all circles at particular iteration of repulsion. For each pair (i, j) of intersecting circles i and j their d[i] and d[j] update to
+
+d[i] += (p[i] - p[j]) * dist * mass[j] / (mass[i] + mass[j])
+d[j] += (p[j] - p[i]) * dist * mass[i] / (mass[i] + mass[j])
+where
+dist = (radius[i] + radius[j] - distance(p[i], p[j])) / distance(p[i], p[j])
+
+If iteration number is less then 1000 then for each circle i add to d[i] some vector which performs pulling to its starting position
+
+d[i] += (startposition[i] - p[i]) / distance(startposition[i], p[i]) * mass[i] / sqrt (N * radius[i]) * f(iteration number)
+where
+f(iter) - monotone decreasing function. I used pow(1 - (iter + 1000) / 2000, 3)
+
+Then I perform some kind of transmission of d[i] to the neighbors of circle i.
+
+At the end add all d[i] to corresponding p[i].
+
+The main loop executes about 5 times at N=500 and 150 times at N=50 (It seems 5 is lucky number everywhere except the rank list).
+
+
+**************************************************
+eldidou
+
+My solution is based of the same kind of simulation that the one used by blackmath except that I didn't use swapping, instead I use a very big starting speed for circles and add a random component to it. As the time passes, the speed is reduced to 0.
+
+The effect of this is that, at the beginning, it's just seems to be a mess, circles are just making a random walk (or some kind brownian motion), but circles are competing to get close to their preferred positions, and lighter circles are expelled from high density areas.
+When the speed decreases, the random walks start to become more and more small and the competition between circle start to become more and more local.
+Finally with a very low speed heavier circles just push lighter ones and start to stabilise.
+
+
+My example results (not the last submission) :
+0) 9.1116413517311
+1) 2.0615324294862267
+2) 9.075277736161143
+3) 12.746214517490197
+4) 3.080761809656508
+5) 40.91595556102399
+6) 7.325899498009892
+7) 11.479150140374037
+8) 26.180047949728063
+9) 2.053008004162258
+
+
+**************************************************
+NobuMiu
+
+0) 9.073842597107097
+1) 2.021840466444658
+2) 9.0254352611501
+3) 13.017548776665269
+4) 3.1398885547657582
+5) 41.23910310186741
+6) 7.399875658468417
+7) 11.57635376107823
+8) 25.726165058712365
+9) 2.057695259813016
+
+My solution was similar to the physical simulation. I also used an idea to rotate the direction of attraction at fixed intervals. Imagine that people are walking in a crowd. If two person head on each other, they need to avoid from left side or right side. It improved 1.2% of my score.
+
+// attraction
+for (int i = 0; i < N; i++)
+{
+	const float base_dx = x[i]-fx[i];
+	const float base_dy = y[i]-fy[i];
+
+	int degree = 0;
+	switch( (loop/30)%3) // The case is changed every ten frames.
+	{
+	case 0:
+		degree = 0;	// straight
+		break;
+	case 1:
+		degree = -(int)(rand()%70);	// right
+		break;
+	case 2:
+		degree = rand()%70;	// left
+		break;
+	}
+
+	// rotate
+	const float dx =  COSF(degree) * base_dx + SINF(degree) * base_dy;
+	const float dy = -SINF(degree) * base_dx + COSF(degree) * base_dy;
+
+	(snip)
+}

@@ -40,7 +40,12 @@ private:
 // returns bool if resolved.
 // should also provide expected deviation or new center locations or many if multiple!!!
 struct IntersectionResolver {
-    bool Resolve(Field& field, Circle& c) {
+//    bool Resolve(const Field& field, Circle& c, const Point& target) {
+//
+//    }
+
+
+    bool Resolve(const Field& field, Circle& c) {
 
         OneStrat strat;
 
@@ -78,5 +83,51 @@ private:
     double sqr_distance_;
 
 };
+
+struct IntersectionResolver_Recursive {
+
+
+    // here we better use
+    bool Resolve(Field& field, Circle& c) {
+
+        OneStrat strat;
+
+        auto inter = field.FirstIntersection(&c);
+        if (!inter) {
+            center_ = c.center();
+            sqr_distance_ = SqrDistance(center_, c.origin);
+            return true;
+        }
+
+        auto deviation = strat(c, *inter.value());
+
+        auto old_center = c.center();
+        c.move_center(deviation);
+        auto res = false;
+        if (!field.HasIntersection(&c)) {
+            res = true;
+            center_ = c.center();
+            sqr_distance_ = SqrDistance(center_, c.origin);
+        }
+        c.set_center(old_center);
+        return res;
+    }
+
+    Point center() const {
+        return center_;
+    }
+
+    double sqr_distance() const {
+        return sqr_distance_;
+    }
+
+private:
+    Point center_;
+    double sqr_distance_;
+
+
+
+};
+
 
 }

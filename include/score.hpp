@@ -18,3 +18,18 @@ private:
     double rad_pow_;
 
 };
+
+// gives you 0.03 in score improvement (3%)
+class Vlad_D_Score {
+public:
+    Vlad_D_Score() {}
+    Vlad_D_Score(double max_rad) : max_rad(max_rad) {}
+
+    double operator()(const ::Circle& circle) const {
+        return circle.mass * min(max_rad / circle.radius, 2.);
+    }
+
+private:
+    double max_rad = 0.5;
+
+};
