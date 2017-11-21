@@ -130,6 +130,7 @@ inline void ResetCenters(vector<Circle>& cs) {
     for_each(cs.begin(), cs.end(), [](auto& c) { c.reset_center(); });
 }
 
+// save current centers of circles
 struct CircleChangeStack {
 
     CircleChangeStack(vector<Circle>& cs) : cs_(&cs) {}
@@ -335,6 +336,20 @@ struct Solution {
     bool is_better(const Solution& s) {
         return work < s.work + CIRCLE_INTERSECTION_EPS;
     }
+};
+
+struct Term {
+
+    Term(int iter_max = std::numeric_limits<int>::max(), int millis_max = std::numeric_limits<int>::max())
+        : iter_max_(iter_max), millis_max_(millis_max) {}
+
+    bool terminate(int iter, int millis = GetMillisCount()) {
+        return millis_max_ < millis || iter_max_ <= iter;
+    }
+
+private:
+    int millis_max_ = std::numeric_limits<int>::max();
+    int iter_max_ = std::numeric_limits<int>::max();
 };
 
 

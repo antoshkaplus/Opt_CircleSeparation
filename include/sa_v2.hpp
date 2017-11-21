@@ -9,6 +9,8 @@
 
 using namespace std;
 
+// Place random circle at origin. Resolve infeasibility somehow.
+// Using SA formula.
 
 template<class Solver>
 class SA_v2 {

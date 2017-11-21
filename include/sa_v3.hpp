@@ -9,6 +9,7 @@
 
 using namespace std;
 
+// Like SA_v2. Letting know which circles have changed.
 
 template<class Solver>
 class SA_v3 {

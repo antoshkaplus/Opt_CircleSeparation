@@ -4,7 +4,7 @@
 
 #include "util.hpp"
 #include "close_up.hpp"
-#include "repulsion_v2.hpp"
+#include "rep/repulsion_v2.hpp"
 
 using namespace std;
 
@@ -16,6 +16,7 @@ using namespace std;
 /// Score has one call operator that returns weight (double)
 /// of the circle, how much he resistant to moving anywhere
 
+// Swapping circles around. Resolve infeasibility by Repulsion
 
 template<class Score>
 class SA {
@@ -32,6 +33,8 @@ class SA {
         void Bring(Problem& problem) {
             auto N = centers.size();
             for (int i = 0; i < N; ++i) {
+
+                // problem doesn't have the field anymore
                 problem.field.Relocate(&problem[i], centers[i]);
             }
         }
@@ -46,7 +49,7 @@ public:
 
         Count N = problem.size();
 
-        Repulsion_v2<Score> separator;
+        rep::Repulsion_v2<Score> separator;
         separator.set_score(score_);
         auto ps = separator.MinimumWork(problem);
 
@@ -65,7 +68,7 @@ public:
         double temp = 1.; 
         double ddd = pow(10, -1./(iter_count*2));
         for (Index iter = 0; iter < iter_count; ++iter) {
-            
+
             // getting neighbor solution
             double best_work_change = numeric_limits<int>::max();
             int i = distr(RNG);    

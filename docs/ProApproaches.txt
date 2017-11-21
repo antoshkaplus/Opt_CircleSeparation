@@ -76,7 +76,13 @@ I place the circles in order in "the closest to desired position", then randomly
 
 The initial order is the best scoring of by mass, by mass - radius * various constants [0.25 - 4], by mass / radius.
 
-I need a fast method to find "the closest to desired position" for each circle so, as the circles are placed, I maintain a Delaunay Triangulation of the circle origins (Here's an example for seed 1). Circles are placed either at their target, at the closest point on the edge of the circle the target is in, or touching two of the circles connected by the Delaunay triangulation. To speed up further, the lines in the triangulation track the smallest circle they can't support, and circle hit testing is speeded up with a coarse lookup grid. This can test an average of 750 different placement orders per test case on my laptop.
+I need a fast method to find "the closest to desired position" for each circle so, as the circles are placed,
+I maintain a Delaunay Triangulation of the circle origins (Here's an example for seed 1).
+Circles are placed either at their target, at the closest point on the edge of the circle the target is in,
+or touching two of the circles connected by the Delaunay triangulation.
+
+To speed up further, the lines in the triangulation track the smallest circle they can't support,
+and circle hit testing is speeded up with a coarse lookup grid. This can test an average of 750 different placement orders per test case on my laptop.
 
 Example scores:
 0) 10.675224699854525
@@ -242,7 +248,8 @@ After all find for each circle the best position it can take touching two other 
 
 Repulsion means:
 
-Suppose circle i takes a position p[i]. And d[i] is a vector at which the circle i will change its position after iteration of repulsion (p[i] += d[i], at the end). We are going to calculate d[i] for all circles at particular iteration of repulsion. For each pair (i, j) of intersecting circles i and j their d[i] and d[j] update to
+Suppose circle i takes a position p[i]. And d[i] is a vector at which the circle i will change its position after iteration of repulsion (p[i] += d[i], at the end).
+We are going to calculate d[i] for all circles at particular iteration of repulsion. For each pair (i, j) of intersecting circles i and j their d[i] and d[j] update to
 
 d[i] += (p[i] - p[j]) * dist * mass[j] / (mass[i] + mass[j])
 d[j] += (p[j] - p[i]) * dist * mass[i] / (mass[i] + mass[j])
@@ -267,7 +274,8 @@ eldidou
 
 My solution is based of the same kind of simulation that the one used by blackmath except that I didn't use swapping, instead I use a very big starting speed for circles and add a random component to it. As the time passes, the speed is reduced to 0.
 
-The effect of this is that, at the beginning, it's just seems to be a mess, circles are just making a random walk (or some kind brownian motion), but circles are competing to get close to their preferred positions, and lighter circles are expelled from high density areas.
+The effect of this is that, at the beginning, it's just seems to be a mess, circles are just making a random walk (or some kind brownian motion),
+but circles are competing to get close to their preferred positions, and lighter circles are expelled from high density areas.
 When the speed decreases, the random walks start to become more and more small and the competition between circle start to become more and more local.
 Finally with a very low speed heavier circles just push lighter ones and start to stabilise.
 
@@ -299,7 +307,9 @@ NobuMiu
 8) 25.726165058712365
 9) 2.057695259813016
 
-My solution was similar to the physical simulation. I also used an idea to rotate the direction of attraction at fixed intervals. Imagine that people are walking in a crowd. If two person head on each other, they need to avoid from left side or right side. It improved 1.2% of my score.
+My solution was similar to the physical simulation. I also used an idea to rotate the direction of attraction at fixed intervals.
+Imagine that people are walking in a crowd. If two person head on each other, they need to avoid from left side or right side.
+It improved 1.2% of my score.
 
 // attraction
 for (int i = 0; i < N; i++)

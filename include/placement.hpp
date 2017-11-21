@@ -31,6 +31,7 @@ public:
         return true;
     }
 
+    // try to move first intersection
     bool Place_2(Circle* c) {
         double angle = 0;
         double distance = 0;
@@ -62,6 +63,7 @@ public:
         }
     }
 
+    // try resolve even if many intersections
     bool Place_3(Circle* c) {
         f::Point best_center;
         auto best_sqr_distance = numeric_limits<double>::max();
