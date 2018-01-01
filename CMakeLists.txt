@@ -109,6 +109,14 @@ add_executable(rep_v3_tester app/methods.cpp app/test_template.cpp)
 target_link_libraries(rep_v3_tester circlesep)
 target_compile_definitions(rep_v3_tester PUBLIC -DC_SEP_REP_3)
 
+add_executable(rep_v4 app/methods.cpp app/main_template.cpp)
+target_link_libraries(rep_v4 circlesep)
+target_compile_definitions(rep_v4 PUBLIC -DC_SEP_REP_4)
+
+add_executable(rep_v4_tester app/methods.cpp app/test_template.cpp)
+target_link_libraries(rep_v4_tester circlesep)
+target_compile_definitions(rep_v4_tester PUBLIC -DC_SEP_REP_4)
+
 add_executable(sa_v2 app/methods.cpp app/main_template.cpp)
 target_link_libraries(sa_v2 circlesep)
 target_compile_definitions(sa_v2 PUBLIC -DC_SEP_SA_2)
@@ -138,10 +146,12 @@ target_compile_definitions(vlad_d PUBLIC -DC_SEP_VLAD_D)
 add_executable(opt app/opt.cpp)
 target_link_libraries(opt circlesep ${ANT_LIBRARY} tbb)
 
-add_executable(tester app/test_template.cpp)
-target_link_libraries(tester
-        ${ANT_LIBRARY}
-        circlesep)
+add_executable(tester_method app/test_template.cpp)
+target_link_libraries(tester_method ${ANT_LIBRARY} circlesep)
 
-add_executable(stats app/stats.cpp)
+add_executable(tester_common app/test_template.cpp)
+target_link_libraries(tester_common ${ANT_LIBRARY} circlesep)
+target_compile_definitions(tester_common PUBLIC -DC_SEP_TESTER)
+
+add_executable(stats app/state_stats.cpp)
 target_link_libraries(stats circlesep ant tbb)

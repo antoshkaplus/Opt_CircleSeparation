@@ -13,6 +13,8 @@ else:
     parser.error("version not specified")
 
 
-command = "java -jar ./CirclesSeparationVis.jar -exec './../bin/" + VERSION + " -d' -seed 1"
+#command = "java -jar ./CirclesSeparationVis.jar -exec './../bin/" + VERSION + " -d' -seed 10"
+command = "java -jar ./CirclesSepVisInfeasible.jar -exec './../bin/" + VERSION + " -d' -seed 1"
+
 
 os.system(command)

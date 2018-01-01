@@ -7,6 +7,7 @@
 #include "rep/repulsion_v1.hpp"
 #include "rep/repulsion_v2.hpp"
 #include "rep/rep_v3.hpp"
+#include "rep/rep_v4.hpp"
 #include "close_up.hpp"
 #include "reorder.hpp"
 #include "sa_v2.hpp"
@@ -156,6 +157,28 @@ vector<double> CirclesSeparation::minimumWork(vector<double> x, vector<double> y
     PlaceCircles(cs, ps);
 
     //BS_CloseUpAllRandom(cs);
+
+    return ToSolution(ExtractCenters(cs));
+}
+
+#endif
+
+#ifdef C_SEP_REP_4
+
+vector<double> CirclesSeparation::minimumWork(vector<double> x, vector<double> y, vector<double> r, vector<double> m) {
+    Problem pr(std::move(x), std::move(y), std::move(r), std::move(m));
+
+    auto cs = ProblemToCircles(pr);
+
+    rep::Rep_v4 g;
+    auto ps = g.MinimumWork(pr);
+
+    PlaceCircles(cs, ps);
+
+//    TangentPlacement_2 placement;
+//    Order ordering;
+//    ordering.OrderByScore(cs, Vlad_D_Score(MaxRadius(cs)));
+//    placement.PlaceAll(cs, ordering.get());
 
     return ToSolution(ExtractCenters(cs));
 }

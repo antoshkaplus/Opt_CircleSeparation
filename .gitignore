@@ -6,3 +6,4 @@
 scores/
 .idea/
 cmake-build-*/
+/scripts/solution.txt

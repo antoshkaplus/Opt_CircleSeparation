@@ -182,6 +182,14 @@ inline vector<double> ToSolution(const vector<Point>& cs) {
     return s;
 }
 
+inline vector<Point> FromSolutionToPoints(const vector<double>& sol) {
+    vector<Point> ps;
+    for (auto i = 0; i < sol.size(); i+=2) {
+        ps.emplace_back(sol[i], sol[i+1]);
+    }
+    return ps;
+}
+
 
 inline Problem ReadProblem(istream& in) {
     Problem res;
@@ -341,15 +349,15 @@ struct Solution {
 struct Term {
 
     Term(int iter_max = std::numeric_limits<int>::max(), int millis_max = std::numeric_limits<int>::max())
-        : iter_max_(iter_max), millis_max_(millis_max) {}
+        : millis_max_(millis_max), iter_max_(iter_max){}
 
     bool terminate(int iter, int millis = GetMillisCount()) {
         return millis_max_ < millis || iter_max_ <= iter;
     }
 
 private:
-    int millis_max_ = std::numeric_limits<int>::max();
-    int iter_max_ = std::numeric_limits<int>::max();
+    int millis_max_;
+    int iter_max_;
 };
 
 
